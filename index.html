@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Emoji Rendering System Test</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 1000px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            h1,
+            h2,
+            h3 {
+                color: #333;
+            }
+
+            .test-section {
+                margin-bottom: 30px;
+                padding: 15px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+
+            .canvas-container {
+                margin: 15px 0;
+            }
+
+            canvas {
+                border: 1px solid #ccc;
+                background-color: #f9f9f9;
+            }
+
+            .controls {
+                margin: 15px 0;
+            }
+
+            .emoji-grid {
+                display: grid;
+                grid-template-columns: repeat(10, 1fr);
+                gap: 10px;
+                margin: 15px 0;
+            }
+
+            .emoji-item {
+                font-size: 24px;
+                text-align: center;
+                cursor: pointer;
+                padding: 5px;
+                border-radius: 5px;
+            }
+
+            .emoji-item:hover {
+                background-color: #f0f0f0;
+            }
+
+            .skin-tone-selector {
+                display: flex;
+                gap: 10px;
+                margin: 15px 0;
+            }
+
+            .skin-tone-option {
+                font-size: 24px;
+                cursor: pointer;
+                padding: 5px;
+                border-radius: 5px;
+            }
+
+            .skin-tone-option:hover {
+                background-color: #f0f0f0;
+            }
+
+            .selected {
+                background-color: #e0e0e0;
+            }
+
+            .browser-info {
+                margin-bottom: 15px;
+                padding: 10px;
+                background-color: #f5f5f5;
+                border-radius: 5px;
+            }
+
+            .status {
+                padding: 5px 10px;
+                border-radius: 3px;
+                display: inline-block;
+                margin-left: 10px;
+            }
+
+            .status.success {
+                background-color: #d4edda;
+                color: #155724;
+            }
+
+            .status.warning {
+                background-color: #fff3cd;
+                color: #856404;
+            }
+
+            .status.error {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Emoji Rendering System Test</h1>
+
+        <div class="browser-info">
+            <h3>Browser Compatibility Check</h3>
+            <div id="browser-details"></div>
+            <div id="emoji-support-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Basic Emoji Rendering</h2>
+            <p>Testing basic emoji rendering on canvas:</p>
+            <div class="canvas-container">
+                <canvas id="basic-canvas" width="500" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Emoji Grid System</h2>
+            <p>Testing emoji grid rendering:</p>
+            <div class="canvas-container">
+                <canvas id="grid-canvas" width="500" height="300"></canvas>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Skin Tone Variants</h2>
+            <p>Select an emoji and apply different skin tones:</p>
+            <div class="emoji-grid" id="emoji-selector">
+                <!-- Emojis that support skin tones will be populated here -->
+            </div>
+
+            <div>
+                <h3>Selected Emoji:
+                    <span id="selected-emoji">👋</span></h3>
+                <div class="skin-tone-selector" id="skin-tone-selector">
+                    <!-- Skin tone options will be populated here -->
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="skin-tone-canvas" width="500" height="100"></canvas>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Emoji Presentation Styles</h2>
+            <p>Testing text vs. emoji presentation styles:</p>
+            <div class="canvas-container">
+                <canvas id="style-canvas" width="500" height="100"></canvas>
+            </div>
+        </div>
+
+        <script type="module">
+            import {createCanvas, createEmojiRenderer} from './src/core/graphics/emojiRenderer.js';
+            import {
+                SKIN_TONES,
+                EMOJI_STYLE,
+                applyEmojiSkinTone,
+                applyEmojiStyle,
+                getAllSkinToneVariations,
+                supportsSkinTone,
+                detectEmojiSupport,
+                EMOJI_CATEGORIES
+            } from './src/core/graphics/emojiUtils.js';
+
+            // Browser compatibility check
+            const browserDetailsEl = document.getElementById('browser-details');
+            const emojiSupportStatusEl = document.getElementById('emoji-support-status');
+
+            // Display browser information
+            const browserInfo = {
+                name: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language
+            };
+
+            browserDetailsEl.innerHTML = `
+      <p><strong>User Agent:</strong> ${browserInfo.name}</p>
+      <p><strong>Platform:</strong> ${browserInfo.platform}</p>
+      <p><strong>Language:</strong> ${browserInfo.language}</p>
+    `;
+
+            // Check emoji support
+            const emojiSupported = detectEmojiSupport();
+            emojiSupportStatusEl.innerHTML = emojiSupported
+                ? '<p><strong>Emoji Support:</strong> <span class="status success">Supported</span></p>'
+                : '<p><strong>Emoji Support:</strong> <span class="status error">Limited Support</span></p>';
+
+            // Basic emoji rendering test
+            const basicCanvas = document.getElementById('basic-canvas');
+            const basicCtx = basicCanvas.getContext('2d');
+            const basicRenderer = createEmojiRenderer(basicCtx);
+
+            // Clear canvas with white background
+            basicCtx.fillStyle = 'white';
+            basicCtx.fillRect(0, 0, basicCanvas.width, basicCanvas.height);
+
+            // Render various emojis at different sizes
+            const basicEmojis = [
+                '😀',
+                '🚀',
+                '🌈',
+                '🎮',
+                '🍕',
+                '🐱',
+                '🏆',
+                '🌍'
+            ];
+            basicEmojis.forEach((emoji, index) => {
+                const x = 60 + (index % 4) * 120;
+                const y = 60 + Math.floor(index / 4) * 80;
+                const size = 30 + (index % 3) * 10;
+                basicRenderer.renderEmoji(emoji, x, y, size);
+            });
+
+            // Grid rendering test
+            const gridCanvas = document.getElementById('grid-canvas');
+            const gridCtx = gridCanvas.getContext('2d');
+            const gridRenderer = createEmojiRenderer(gridCtx);
+
+            // Clear canvas with white background
+            gridCtx.fillStyle = 'white';
+            gridCtx.fillRect(0, 0, gridCanvas.width, gridCanvas.height);
+
+            // Create a sample emoji grid (5x5)
+            const emojiGrid = [
+                [
+                    '🌳', '🌳', '🌳', '🌳', '🌳'
+                ],
+                [
+                    '🌳', '🏠', '🛣️', '🏪', '🌳'
+                ],
+                [
+                    '🌳', '🛣️', '🛣️', '🛣️', '🌳'
+                ],
+                [
+                    '🌳', '🚗', '🛣️', '🚶', '🌳'
+                ],
+                [
+                    '🌳', '🌳', '🌳', '🌳', '🌳'
+                ]
+            ];
+
+            // Draw grid lines
+            gridCtx.strokeStyle = '#ddd';
+            const cellSize = 60;
+            const gridStartX = 50;
+            const gridStartY = 30;
+
+            for (let i = 0; i <= emojiGrid.length; i++) {
+                // Horizontal lines
+                gridCtx.beginPath();
+                gridCtx.moveTo(gridStartX, gridStartY + i * cellSize);
+                gridCtx.lineTo(gridStartX + emojiGrid[0].length * cellSize, gridStartY + i * cellSize);
+                gridCtx.stroke();
+
+                // Vertical lines
+                gridCtx.beginPath();
+                gridCtx.moveTo(gridStartX + i * cellSize, gridStartY);
+                gridCtx.lineTo(gridStartX + i * cellSize, gridStartY + emojiGrid.length * cellSize);
+                gridCtx.stroke();
+            }
+
+            // Render the emoji grid
+            gridRenderer.renderEmojiGrid(emojiGrid, gridStartX, gridStartY, cellSize, 40);
+
+            // Skin tone test
+            const skinToneCanvas = document.getElementById('skin-tone-canvas');
+            const skinToneCtx = skinToneCanvas.getContext('2d');
+            const skinToneRenderer = createEmojiRenderer(skinToneCtx);
+
+            // Populate emoji selector with emojis that support skin tones
+            const emojiSelectorEl = document.getElementById('emoji-selector');
+            const skinToneSupportingEmojis = [
+                '👋',
+                '👍',
+                '👎',
+                '✊',
+                '👊',
+                '👏',
+                '🙌',
+                '👆',
+                '👇',
+                '🙏',
+                '💪',
+                '🤳',
+                '💅',
+                '👨',
+                '👩'
+            ];
+
+            skinToneSupportingEmojis.forEach(emoji => {
+                const emojiEl = document.createElement('div');
+                emojiEl.className = 'emoji-item';
+                emojiEl.textContent = emoji;
+                emojiEl.addEventListener('click', () => {
+                    document
+                        .querySelectorAll('.emoji-item')
+                        .forEach(el => el.classList.remove('selected'));
+                    emojiEl
+                        .classList
+                        .add('selected');
+                    document
+                        .getElementById('selected-emoji')
+                        .textContent = emoji;
+                    updateSkinToneCanvas();
+                });
+                emojiSelectorEl.appendChild(emojiEl);
+            });
+
+            // Populate skin tone selector
+            const skinToneSelectorEl = document.getElementById('skin-tone-selector');
+            const skinToneOptions = [
+                {
+                    label: 'Default',
+                    value: null
+                }, {
+                    label: '👋🏻',
+                    value: SKIN_TONES.LIGHT
+                }, {
+                    label: '👋🏼',
+                    value: SKIN_TONES.MEDIUM_LIGHT
+                }, {
+                    label: '👋🏽',
+                    value: SKIN_TONES.MEDIUM
+                }, {
+                    label: '👋🏾',
+                    value: SKIN_TONES.MEDIUM_DARK
+                }, {
+                    label: '👋🏿',
+                    value: SKIN_TONES.DARK
+                }
+            ];
+
+            let selectedSkinTone = null;
+
+            skinToneOptions.forEach(option => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'skin-tone-option';
+                optionEl.textContent = option.label;
+                optionEl.addEventListener('click', () => {
+                    document
+                        .querySelectorAll('.skin-tone-option')
+                        .forEach(el => el.classList.remove('selected'));
+                    optionEl
+                        .classList
+                        .add('selected');
+                    selectedSkinTone = option.value;
+                    updateSkinToneCanvas();
+                });
+                skinToneSelectorEl.appendChild(optionEl);
+            });
+
+            // Select first emoji and default skin tone by default
+            document
+                .querySelector('.emoji-item')
+                .classList
+                .add('selected');
+            document
+                .querySelector('.skin-tone-option')
+                .classList
+                .add('selected');
+
+            function updateSkinToneCanvas() {
+                // Clear canvas
+                skinToneCtx.fillStyle = 'white';
+                skinToneCtx.fillRect(0, 0, skinToneCanvas.width, skinToneCanvas.height);
+
+                const selectedEmoji = document
+                    .getElementById('selected-emoji')
+                    .textContent;
+                const modifiedEmoji = selectedSkinTone
+                    ? applyEmojiSkinTone(selectedEmoji, selectedSkinTone)
+                    : selectedEmoji;
+
+                // Render the emoji with selected skin tone
+                skinToneRenderer.renderEmoji(modifiedEmoji, skinToneCanvas.width / 2, skinToneCanvas.height / 2, 60);
+            }
+
+            // Initial render
+            updateSkinToneCanvas();
+
+            // Emoji presentation style test
+            const styleCanvas = document.getElementById('style-canvas');
+            const styleCtx = styleCanvas.getContext('2d');
+            const styleRenderer = createEmojiRenderer(styleCtx);
+
+            // Clear canvas
+            styleCtx.fillStyle = 'white';
+            styleCtx.fillRect(0, 0, styleCanvas.width, styleCanvas.height);
+
+            // Test emojis with different presentation styles
+            const testEmojisForStyle = ['❤', '☀', '✅', '⭐', '☎'];
+
+            testEmojisForStyle.forEach((emoji, index) => {
+                const x = 100 + index * 100;
+                const y = 30;
+
+                // Text style
+                const textStyleEmoji = applyEmojiStyle(emoji, EMOJI_STYLE.TEXT);
+                styleRenderer.renderEmoji(textStyleEmoji, x, y, 30);
+
+                // Label
+                styleCtx.fillStyle = 'black';
+                styleCtx.font = '12px Arial';
+                styleCtx.textAlign = 'center';
+                styleCtx.fillText('Text Style', x, y + 30);
+
+                // Emoji style
+                const emojiStyleEmoji = applyEmojiStyle(emoji, EMOJI_STYLE.EMOJI);
+                styleRenderer.renderEmoji(emojiStyleEmoji, x, y + 60, 30);
+
+                // Label
+                styleCtx.fillText('Emoji Style', x, y + 90);
+            });
+        </script>
+    </body>
+</html>
