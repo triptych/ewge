@@ -161,6 +161,40 @@
             </div>
         </div>
 
+        <div class="test-section">
+            <h2>Emoji Animation System</h2>
+            <p>Testing emoji animations and transitions:</p>
+
+            <div class="animation-controls">
+                <h3>Animation Types</h3>
+                <div class="control-buttons">
+                    <button id="cycle-animation-btn">Cycle Animation</button>
+                    <button id="bounce-animation-btn">Bounce Animation</button>
+                    <button id="shake-animation-btn">Shake Animation</button>
+                    <button id="typing-animation-btn">Typing Animation</button>
+                    <button id="stop-animation-btn">Stop All</button>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="animation-canvas" width="500" height="200"></canvas>
+            </div>
+
+            <div class="animation-controls">
+                <h3>Transition Effects</h3>
+                <div class="control-buttons">
+                    <button id="fade-transition-btn">Fade Transition</button>
+                    <button id="scale-transition-btn">Scale Transition</button>
+                    <button id="rotate-transition-btn">Rotate Transition</button>
+                    <button id="pulse-transition-btn">Pulse Transition</button>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="transition-canvas" width="500" height="100"></canvas>
+            </div>
+        </div>
+
         <script type="module">
             import {createCanvas, createEmojiRenderer} from './src/core/graphics/emojiRenderer.js';
             import {
@@ -173,6 +207,7 @@
                 detectEmojiSupport,
                 EMOJI_CATEGORIES
             } from './src/core/graphics/emojiUtils.js';
+            import {createEmojiAnimator, createAnimation, createAnimationFrame, createEmojiTransition} from './src/core/graphics/emojiAnimator.js';
 
             // Browser compatibility check
             const browserDetailsEl = document.getElementById('browser-details');
@@ -424,6 +459,236 @@
                 // Label
                 styleCtx.fillText('Emoji Style', x, y + 90);
             });
+
+            // Animation system test
+            const animationCanvas = document.getElementById('animation-canvas');
+            const animationCtx = animationCanvas.getContext('2d');
+            const animationRenderer = createEmojiRenderer(animationCtx);
+            const animator = createEmojiAnimator(animationRenderer);
+
+            // Clear canvas with white background
+            animationCtx.fillStyle = 'white';
+            animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+
+            // Transition canvas
+            const transitionCanvas = document.getElementById('transition-canvas');
+            const transitionCtx = transitionCanvas.getContext('2d');
+            const transitionRenderer = createEmojiRenderer(transitionCtx);
+            const transitionAnimator = createEmojiAnimator(transitionRenderer);
+
+            // Clear transition canvas
+            transitionCtx.fillStyle = 'white';
+            transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
+
+            // Track active animations
+            let activeAnimationId = null;
+            let activeTransitionId = null;
+
+            // Animation button handlers
+            document
+                .getElementById('cycle-animation-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing animation
+                    if (activeAnimationId) {
+                        animator.stopAnimation(activeAnimationId);
+                    }
+
+                    // Clear canvas
+                    animationCtx.fillStyle = 'white';
+                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+
+                    // Create a cycle animation with different emojis
+                    const emojis = [
+                        '😀',
+                        '😁',
+                        '😂',
+                        '🤣',
+                        '😃',
+                        '😄',
+                        '😅',
+                        '😆'
+                    ];
+                    const cycleAnimation = animator.createEmojiCycleAnimation(emojis, 300, {
+                        loop: true,
+                        name: 'emoji_cycle'
+                    });
+
+                    // Play the animation
+                    activeAnimationId = animator.playAnimation(null, cycleAnimation, animationCanvas.width / 2, animationCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('bounce-animation-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing animation
+                    if (activeAnimationId) {
+                        animator.stopAnimation(activeAnimationId);
+                    }
+
+                    // Clear canvas
+                    animationCtx.fillStyle = 'white';
+                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+
+                    // Create a bounce animation
+                    const bounceAnimation = animator.createBounceAnimation('🏀', 1000, 20, 1.5);
+
+                    // Play the animation
+                    activeAnimationId = animator.playAnimation(null, bounceAnimation, animationCanvas.width / 2, animationCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('shake-animation-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing animation
+                    if (activeAnimationId) {
+                        animator.stopAnimation(activeAnimationId);
+                    }
+
+                    // Clear canvas
+                    animationCtx.fillStyle = 'white';
+                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+
+                    // Create a shake animation
+                    const shakeAnimation = animator.createShakeAnimation('😱', 800, 15, 0.3);
+
+                    // Play the animation
+                    activeAnimationId = animator.playAnimation(null, shakeAnimation, animationCanvas.width / 2, animationCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('typing-animation-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing animation
+                    if (activeAnimationId) {
+                        animator.stopAnimation(activeAnimationId);
+                    }
+
+                    // Clear canvas
+                    animationCtx.fillStyle = 'white';
+                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+
+                    // Create a typing animation
+                    const typingAnimation = animator.createTypingAnimation('💬', 1000, 10);
+
+                    // Play the animation
+                    activeAnimationId = animator.playAnimation(null, typingAnimation, animationCanvas.width / 2, animationCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('stop-animation-btn')
+                .addEventListener('click', () => {
+                    // Stop all animations
+                    animator.stopAllAnimations();
+                    activeAnimationId = null;
+
+                    // Clear canvas
+                    animationCtx.fillStyle = 'white';
+                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+                });
+
+            // Transition button handlers
+            document
+                .getElementById('fade-transition-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing transition
+                    if (activeTransitionId) {
+                        transitionAnimator.stopAnimation(activeTransitionId);
+                    }
+
+                    // Clear canvas
+                    transitionCtx.fillStyle = 'white';
+                    transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
+
+                    // Create a fade transition
+                    const fadeTransition = createEmojiTransition('🌞', '🌙', 1500, 'fade', 15);
+
+                    // Play the transition
+                    activeTransitionId = transitionAnimator.playAnimation(null, fadeTransition, transitionCanvas.width / 2, transitionCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('scale-transition-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing transition
+                    if (activeTransitionId) {
+                        transitionAnimator.stopAnimation(activeTransitionId);
+                    }
+
+                    // Clear canvas
+                    transitionCtx.fillStyle = 'white';
+                    transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
+
+                    // Create a scale transition
+                    const scaleTransition = createEmojiTransition('🐣', '🐥', 1500, 'scale', 15);
+
+                    // Play the transition
+                    activeTransitionId = transitionAnimator.playAnimation(null, scaleTransition, transitionCanvas.width / 2, transitionCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('rotate-transition-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing transition
+                    if (activeTransitionId) {
+                        transitionAnimator.stopAnimation(activeTransitionId);
+                    }
+
+                    // Clear canvas
+                    transitionCtx.fillStyle = 'white';
+                    transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
+
+                    // Create a rotate transition
+                    const rotateTransition = createEmojiTransition('🍃', '🍂', 1500, 'rotate', 15);
+
+                    // Play the transition
+                    activeTransitionId = transitionAnimator.playAnimation(null, rotateTransition, transitionCanvas.width / 2, transitionCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('pulse-transition-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing transition
+                    if (activeTransitionId) {
+                        transitionAnimator.stopAnimation(activeTransitionId);
+                    }
+
+                    // Clear canvas
+                    transitionCtx.fillStyle = 'white';
+                    transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
+
+                    // Create a pulse transition
+                    const pulseTransition = createEmojiTransition('❤️', '💓', 1500, 'pulse', 15);
+
+                    // Play the transition
+                    activeTransitionId = transitionAnimator.playAnimation(null, pulseTransition, transitionCanvas.width / 2, transitionCanvas.height / 2, 60);
+                });
+
+            // Add some CSS for the animation controls
+            const style = document.createElement('style');
+            style.textContent = `
+                .animation-controls {
+                    margin: 15px 0;
+                }
+                .control-buttons {
+                    display: flex;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                    margin-bottom: 15px;
+                }
+                .control-buttons button {
+                    padding: 8px 12px;
+                    background-color: #f0f0f0;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    cursor: pointer;
+                }
+                .control-buttons button:hover {
+                    background-color: #e0e0e0;
+                }
+            `;
+            document
+                .head
+                .appendChild(style);
         </script>
     </body>
 </html>

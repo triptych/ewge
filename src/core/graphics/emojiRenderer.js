@@ -103,12 +103,22 @@ export const createEmojiRenderer = (ctx) => {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   };
 
+  /**
+   * Gets the canvas 2D rendering context
+   *
+   * @returns {CanvasRenderingContext2D} The canvas 2D rendering context
+   */
+  const getContext = () => {
+    return ctx;
+  };
+
   // Return the public API
   return {
     renderEmoji,
     renderEmojiGrid,
     measureEmojiWidth,
-    clearCanvas
+    clearCanvas,
+    getContext
   };
 };
 
