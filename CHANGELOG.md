@@ -44,6 +44,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added grid snapping and alignment tools
   - Implemented interactive map editing with layer selection and emoji brushes
   - Added support for importing/exporting map data
+- Implemented 2D Grid-Based Map System - Layer System (Task 2.2):
+  - Implemented background layer for terrain and environment
+  - Created collision layer with walkable/non-walkable areas
+  - Built event trigger layer for game interactions
+  - Implemented sprite/character layer for game entities
+  - Added GUI/interface layer for on-map UI elements
+  - Created layer visibility toggles and opacity controls
+  - Implemented layer management system with ordering and properties
 
 ### Fixed
 - Fixed a bug in the animation system where previous frames were not being cleared, causing a blurring effect in animations (most noticeable in the bounce animation)

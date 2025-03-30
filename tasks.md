@@ -36,13 +36,13 @@ This document outlines the implementation tasks for each feature of the emoji-ba
   - [x] Build rendering system for grid display
   - [x] Add grid snapping and alignment tools
 
-- [ ] **2.2 Layer System**
-  - [ ] Implement background layer
-  - [ ] Create collision layer with walkable/non-walkable areas
-  - [ ] Build event trigger layer
-  - [ ] Implement sprite/character layer
-  - [ ] Add GUI/interface layer
-  - [ ] Create layer visibility toggles
+- [x] **2.2 Layer System**
+  - [x] Implement background layer
+  - [x] Create collision layer with walkable/non-walkable areas
+  - [x] Build event trigger layer
+  - [x] Implement sprite/character layer
+  - [x] Add GUI/interface layer
+  - [x] Create layer visibility toggles
 
 - [ ] **2.3 Map Navigation**
   - [ ] Implement camera controls
