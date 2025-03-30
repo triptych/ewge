@@ -22,6 +22,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Implemented various transition effects (fade, scale, rotate, pulse)
   - Added predefined animation types (cycle, bounce, shake, typing)
   - Built interactive animation preview tool with controls for testing animations
+- Implemented Emoji Picker/Selector (Task 1.3):
+  - Created categorized emoji database with support for different emoji categories
+  - Designed and implemented UI for emoji selection with tabs and grid layout
+  - Added search functionality for finding emojis
+  - Implemented recently used and favorites sections with localStorage persistence
+  - Added skin tone selection for supported emojis
+  - Created both standalone picker and button-triggered picker components
+- Implemented Emoji Composition System (Task 1.4):
+  - Created layering system for combining multiple emojis
+  - Implemented transformation controls (position, scale, rotation, opacity)
+  - Built layer management with z-index ordering
+  - Added composition preview with real-time updates
+  - Implemented export/import functionality for compositions
+  - Created preset compositions as examples
+  - Added integration with the emoji picker for selecting emojis
+- Implemented 2D Grid-Based Map System - Grid Implementation (Task 2.1):
+  - Created data structure for grid-based maps with multiple layers (background, collision, event, sprite, GUI)
+  - Implemented configurable grid dimensions and cell sizes
+  - Built rendering system for grid display with camera controls for scrolling
+  - Added grid snapping and alignment tools
+  - Implemented interactive map editing with layer selection and emoji brushes
+  - Added support for importing/exporting map data
+
+### Fixed
+- Fixed a bug in the animation system where previous frames were not being cleared, causing a blurring effect in animations (most noticeable in the bounce animation)
 
 ## [0.1.0] - 2025-03-29
 

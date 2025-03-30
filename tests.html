@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Emoji Rendering System Test</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 1000px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            h1,
+            h2,
+            h3 {
+                color: #333;
+            }
+
+            .test-section {
+                margin-bottom: 30px;
+                padding: 15px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+
+            .canvas-container {
+                margin: 15px 0;
+            }
+
+            canvas {
+                border: 1px solid #ccc;
+                background-color: #f9f9f9;
+            }
+
+            .controls {
+                margin: 15px 0;
+            }
+
+            .emoji-grid {
+                display: grid;
+                grid-template-columns: repeat(10, 1fr);
+                gap: 10px;
+                margin: 15px 0;
+            }
+
+            .emoji-item {
+                font-size: 24px;
+                text-align: center;
+                cursor: pointer;
+                padding: 5px;
+                border-radius: 5px;
+            }
+
+            .emoji-item:hover {
+                background-color: #f0f0f0;
+            }
+
+            .skin-tone-selector {
+                display: flex;
+                gap: 10px;
+                margin: 15px 0;
+            }
+
+            .skin-tone-option {
+                font-size: 24px;
+                cursor: pointer;
+                padding: 5px;
+                border-radius: 5px;
+            }
+
+            .skin-tone-option:hover {
+                background-color: #f0f0f0;
+            }
+
+            .selected {
+                background-color: #e0e0e0;
+            }
+
+            .browser-info {
+                margin-bottom: 15px;
+                padding: 10px;
+                background-color: #f5f5f5;
+                border-radius: 5px;
+            }
+
+            .status {
+                padding: 5px 10px;
+                border-radius: 3px;
+                display: inline-block;
+                margin-left: 10px;
+            }
+
+            .status.success {
+                background-color: #d4edda;
+                color: #155724;
+            }
+
+            .status.warning {
+                background-color: #fff3cd;
+                color: #856404;
+            }
+
+            .status.error {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Emoji Rendering System Test</h1>
+
+        <div class="browser-info">
+            <h3>Browser Compatibility Check</h3>
+            <div id="browser-details"></div>
+            <div id="emoji-support-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Basic Emoji Rendering</h2>
+            <p>Testing basic emoji rendering on canvas:</p>
+            <div class="canvas-container">
+                <canvas id="basic-canvas" width="500" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Emoji Grid System</h2>
+            <p>Testing emoji grid rendering:</p>
+            <div class="canvas-container">
+                <canvas id="grid-canvas" width="500" height="300"></canvas>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Skin Tone Variants</h2>
+            <p>Select an emoji and apply different skin tones:</p>
+            <div class="emoji-grid" id="emoji-selector">
+                <!-- Emojis that support skin tones will be populated here -->
+            </div>
+
+            <div>
+                <h3>Selected Emoji:
+                    <span id="selected-emoji">👋</span></h3>
+                <div class="skin-tone-selector" id="skin-tone-selector">
+                    <!-- Skin tone options will be populated here -->
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="skin-tone-canvas" width="500" height="100"></canvas>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Emoji Presentation Styles</h2>
+            <p>Testing text vs. emoji presentation styles:</p>
+            <div class="canvas-container">
+                <canvas id="style-canvas" width="500" height="100"></canvas>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Emoji Picker/Selector</h2>
+            <p>Testing the emoji picker component:</p>
+
+            <div class="picker-container">
+                <h3>Emoji Picker Demo</h3>
+                <div id="emoji-picker-container"></div>
+                <div class="picker-result">
+                    <h4>Selected Emoji:
+                        <span id="picker-result">👋</span></h4>
+                </div>
+                <div class="picker-controls">
+                    <button id="show-picker-btn">Show Picker</button>
+                    <button id="hide-picker-btn">Hide Picker</button>
+                </div>
+            </div>
+
+            <div class="picker-container">
+                <h3>Emoji Button Demo</h3>
+                <div id="emoji-button-container"></div>
+                <div class="picker-result">
+                    <h4>Selected Emoji:
+                        <span id="button-result">👍</span></h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Emoji Composition System</h2>
+            <p>Testing emoji layering and composition:</p>
+
+            <div class="composition-container">
+                <div class="composition-preview">
+                    <h3>Composition Preview</h3>
+                    <div id="composition-preview-container"></div>
+                </div>
+                <div class="composition-controls">
+                    <h3>Composition Controls</h3>
+                    <div class="control-buttons">
+                        <button id="add-layer-btn">Add Layer</button>
+                        <button id="clear-composition-btn">Clear Composition</button>
+                        <button id="export-composition-btn">Export Composition</button>
+                    </div>
+                    <div class="layer-controls">
+                        <h4>Layer Properties</h4>
+                        <div class="layer-property">
+                            <label>Emoji:</label>
+                            <input type="text" id="layer-emoji" value="😀">
+                            <button id="pick-emoji-btn">Pick</button>
+                        </div>
+                        <div class="layer-property">
+                            <label>X Offset:</label>
+                            <input type="range" id="layer-x" min="-50" max="50" value="0">
+                            <span id="layer-x-value">0</span>
+                        </div>
+                        <div class="layer-property">
+                            <label>Y Offset:</label>
+                            <input type="range" id="layer-y" min="-50" max="50" value="0">
+                            <span id="layer-y-value">0</span>
+                        </div>
+                        <div class="layer-property">
+                            <label>Scale:</label>
+                            <input type="range" id="layer-scale" min="0.5" max="2" step="0.1" value="1">
+                            <span id="layer-scale-value">1.0</span>
+                        </div>
+                        <div class="layer-property">
+                            <label>Rotation:</label>
+                            <input type="range" id="layer-rotation" min="0" max="6.28" step="0.1" value="0">
+                            <span id="layer-rotation-value">0°</span>
+                        </div>
+                        <div class="layer-property">
+                            <label>Opacity:</label>
+                            <input type="range" id="layer-opacity" min="0" max="1" step="0.1" value="1">
+                            <span id="layer-opacity-value">100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="composition-examples">
+                <h3>Preset Compositions</h3>
+                <div class="preset-compositions" id="preset-compositions">
+                    <!-- Preset compositions will be added here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>2D Grid-Based Map System</h2>
+            <p>Testing the grid-based map system with emoji tiles:</p>
+
+            <div class="grid-controls">
+                <h3>Grid Controls</h3>
+                <div class="control-buttons">
+                    <button id="create-map-btn">Create New Map</button>
+                    <button id="toggle-grid-btn">Toggle Grid Lines</button>
+                    <button id="toggle-layers-btn">Toggle Layers</button>
+                    <button id="clear-map-btn">Clear Map</button>
+                </div>
+                <div class="layer-selector">
+                    <h4>Active Layer:</h4>
+                    <select id="active-layer-select">
+                        <option value="background">Background</option>
+                        <option value="collision">Collision</option>
+                        <option value="event">Event</option>
+                        <option value="sprite">Sprite</option>
+                        <option value="gui">GUI</option>
+                    </select>
+                </div>
+                <div class="brush-selector">
+                    <h4>Brush Emoji:</h4>
+                    <input type="text" id="brush-emoji" value="🌳">
+                    <button id="pick-brush-emoji-btn">Pick</button>
+                </div>
+                <div class="camera-controls">
+                    <h4>Camera Controls:</h4>
+                    <div class="control-buttons">
+                        <button id="camera-up-btn">⬆️</button>
+                        <button id="camera-left-btn">⬅️</button>
+                        <button id="camera-reset-btn">Reset</button>
+                        <button id="camera-right-btn">➡️</button>
+                        <button id="camera-down-btn">⬇️</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="grid-map-canvas" width="500" height="300"></canvas>
+            </div>
+
+            <div class="grid-info">
+                <p>Mouse Position:
+                    <span id="mouse-grid-pos">0, 0</span></p>
+                <p>Camera Position:
+                    <span id="camera-pos">0, 0</span></p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Emoji Animation System</h2>
+            <p>Testing emoji animations and transitions:</p>
+
+            <div class="animation-controls">
+                <h3>Animation Types</h3>
+                <div class="control-buttons">
+                    <button id="cycle-animation-btn">Cycle Animation</button>
+                    <button id="bounce-animation-btn">Bounce Animation</button>
+                    <button id="shake-animation-btn">Shake Animation</button>
+                    <button id="typing-animation-btn">Typing Animation</button>
+                    <button id="stop-animation-btn">Stop All</button>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="animation-canvas" width="500" height="200"></canvas>
+            </div>
+
+            <div class="animation-controls">
+                <h3>Transition Effects</h3>
+                <div class="control-buttons">
+                    <button id="fade-transition-btn">Fade Transition</button>
+                    <button id="scale-transition-btn">Scale Transition</button>
+                    <button id="rotate-transition-btn">Rotate Transition</button>
+                    <button id="pulse-transition-btn">Pulse Transition</button>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="transition-canvas" width="500" height="100"></canvas>
+            </div>
+        </div>
+
+        <script type="module">
+            import {createCanvas, createEmojiRenderer} from './src/core/graphics/emojiRenderer.js';
+            import {
+                SKIN_TONES,
+                EMOJI_STYLE,
+                applyEmojiSkinTone,
+                applyEmojiStyle,
+                getAllSkinToneVariations,
+                supportsSkinTone,
+                detectEmojiSupport,
+                EMOJI_CATEGORIES
+            } from './src/core/graphics/emojiUtils.js';
+            import {createEmojiAnimator, createAnimation, createAnimationFrame, createEmojiTransition} from './src/core/graphics/emojiAnimator.js';
+            import {createEmojiPicker, createEmojiButton} from './src/core/graphics/emojiPicker.js';
+            import {createEmojiComposer, createCompositionLayer, createEmojiComposition} from './src/core/graphics/emojiComposer.js';
+            import {GRID_LAYER_TYPE, createGridLayer, createGridMap, createGridRenderer} from './src/core/graphics/emojiGrid.js';
+
+            // Browser compatibility check
+            const browserDetailsEl = document.getElementById('browser-details');
+            const emojiSupportStatusEl = document.getElementById('emoji-support-status');
+
+            // Display browser information
+            const browserInfo = {
+                name: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language
+            };
+
+            browserDetailsEl.innerHTML = `
+      <p><strong>User Agent:</strong> ${browserInfo.name}</p>
+      <p><strong>Platform:</strong> ${browserInfo.platform}</p>
+      <p><strong>Language:</strong> ${browserInfo.language}</p>
+    `;
+
+            // Check emoji support
+            const emojiSupported = detectEmojiSupport();
+            emojiSupportStatusEl.innerHTML = emojiSupported
+                ? '<p><strong>Emoji Support:</strong> <span class="status success">Supported</span></p>'
+                : '<p><strong>Emoji Support:</strong> <span class="status error">Limited Support</span></p>';
+
+            // Basic emoji rendering test
+            const basicCanvas = document.getElementById('basic-canvas');
+            const basicCtx = basicCanvas.getContext('2d');
+            const basicRenderer = createEmojiRenderer(basicCtx);
+
+            // Clear canvas with white background
+            basicCtx.fillStyle = 'white';
+            basicCtx.fillRect(0, 0, basicCanvas.width, basicCanvas.height);
+
+            // Render various emojis at different sizes
+            const basicEmojis = [
+                '😀',
+                '🚀',
+                '🌈',
+                '🎮',
+                '🍕',
+                '🐱',
+                '🏆',
+                '🌍'
+            ];
+            basicEmojis.forEach((emoji, index) => {
+                const x = 60 + (index % 4) * 120;
+                const y = 60 + Math.floor(index / 4) * 80;
+                const size = 30 + (index % 3) * 10;
+                basicRenderer.renderEmoji(emoji, x, y, size);
+            });
+
+            // Grid rendering test
+            const gridCanvas = document.getElementById('grid-canvas');
+            const gridCtx = gridCanvas.getContext('2d');
+            const gridRenderer = createEmojiRenderer(gridCtx);
+
+            // Clear canvas with white background
+            gridCtx.fillStyle = 'white';
+            gridCtx.fillRect(0, 0, gridCanvas.width, gridCanvas.height);
+
+            // Create a sample emoji grid (5x5)
+            const emojiGrid = [
+                [
+                    '🌳', '🌳', '🌳', '🌳', '🌳'
+                ],
+                [
+                    '🌳', '🏠', '🛣️', '🏪', '🌳'
+                ],
+                [
+                    '🌳', '🛣️', '🛣️', '🛣️', '🌳'
+                ],
+                [
+                    '🌳', '🚗', '🛣️', '🚶', '🌳'
+                ],
+                [
+                    '🌳', '🌳', '🌳', '🌳', '🌳'
+                ]
+            ];
+
+            // Draw grid lines
+            gridCtx.strokeStyle = '#ddd';
+            const cellSize = 60;
+            const gridStartX = 50;
+            const gridStartY = 30;
+
+            for (let i = 0; i <= emojiGrid.length; i++) {
+                // Horizontal lines
+                gridCtx.beginPath();
+                gridCtx.moveTo(gridStartX, gridStartY + i * cellSize);
+                gridCtx.lineTo(gridStartX + emojiGrid[0].length * cellSize, gridStartY + i * cellSize);
+                gridCtx.stroke();
+
+                // Vertical lines
+                gridCtx.beginPath();
+                gridCtx.moveTo(gridStartX + i * cellSize, gridStartY);
+                gridCtx.lineTo(gridStartX + i * cellSize, gridStartY + emojiGrid.length * cellSize);
+                gridCtx.stroke();
+            }
+
+            // Render the emoji grid
+            gridRenderer.renderEmojiGrid(emojiGrid, gridStartX, gridStartY, cellSize, 40);
+
+            // Skin tone test
+            const skinToneCanvas = document.getElementById('skin-tone-canvas');
+            const skinToneCtx = skinToneCanvas.getContext('2d');
+            const skinToneRenderer = createEmojiRenderer(skinToneCtx);
+
+            // Populate emoji selector with emojis that support skin tones
+            const emojiSelectorEl = document.getElementById('emoji-selector');
+            const skinToneSupportingEmojis = [
+                '👋',
+                '👍',
+                '👎',
+                '✊',
+                '👊',
+                '👏',
+                '🙌',
+                '👆',
+                '👇',
+                '🙏',
+                '💪',
+                '🤳',
+                '💅',
+                '👨',
+                '👩'
+            ];
+
+            skinToneSupportingEmojis.forEach(emoji => {
+                const emojiEl = document.createElement('div');
+                emojiEl.className = 'emoji-item';
+                emojiEl.textContent = emoji;
+                emojiEl.addEventListener('click', () => {
+                    document
+                        .querySelectorAll('.emoji-item')
+                        .forEach(el => el.classList.remove('selected'));
+                    emojiEl
+                        .classList
+                        .add('selected');
+                    document
+                        .getElementById('selected-emoji')
+                        .textContent = emoji;
+                    updateSkinToneCanvas();
+                });
+                emojiSelectorEl.appendChild(emojiEl);
+            });
+
+            // Populate skin tone selector
+            const skinToneSelectorEl = document.getElementById('skin-tone-selector');
+            const skinToneOptions = [
+                {
+                    label: 'Default',
+                    value: null
+                }, {
+                    label: '👋🏻',
+                    value: SKIN_TONES.LIGHT
+                }, {
+                    label: '👋🏼',
+                    value: SKIN_TONES.MEDIUM_LIGHT
+                }, {
+                    label: '👋🏽',
+                    value: SKIN_TONES.MEDIUM
+                }, {
+                    label: '👋🏾',
+                    value: SKIN_TONES.MEDIUM_DARK
+                }, {
+                    label: '👋🏿',
+                    value: SKIN_TONES.DARK
+                }
+            ];
+
+            let selectedSkinTone = null;
+
+            skinToneOptions.forEach(option => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'skin-tone-option';
+                optionEl.textContent = option.label;
+                optionEl.addEventListener('click', () => {
+                    document
+                        .querySelectorAll('.skin-tone-option')
+                        .forEach(el => el.classList.remove('selected'));
+                    optionEl
+                        .classList
+                        .add('selected');
+                    selectedSkinTone = option.value;
+                    updateSkinToneCanvas();
+                });
+                skinToneSelectorEl.appendChild(optionEl);
+            });
+
+            // Select first emoji and default skin tone by default
+            document
+                .querySelector('.emoji-item')
+                .classList
+                .add('selected');
+            document
+                .querySelector('.skin-tone-option')
+                .classList
+                .add('selected');
+
+            function updateSkinToneCanvas() {
+                // Clear canvas
+                skinToneCtx.fillStyle = 'white';
+                skinToneCtx.fillRect(0, 0, skinToneCanvas.width, skinToneCanvas.height);
+
+                const selectedEmoji = document
+                    .getElementById('selected-emoji')
+                    .textContent;
+                const modifiedEmoji = selectedSkinTone
+                    ? applyEmojiSkinTone(selectedEmoji, selectedSkinTone)
+                    : selectedEmoji;
+
+                // Render the emoji with selected skin tone
+                skinToneRenderer.renderEmoji(modifiedEmoji, skinToneCanvas.width / 2, skinToneCanvas.height / 2, 60);
+            }
+
+            // Initial render
+            updateSkinToneCanvas();
+
+            // Emoji presentation style test
+            const styleCanvas = document.getElementById('style-canvas');
+            const styleCtx = styleCanvas.getContext('2d');
+            const styleRenderer = createEmojiRenderer(styleCtx);
+
+            // Clear canvas
+            styleCtx.fillStyle = 'white';
+            styleCtx.fillRect(0, 0, styleCanvas.width, styleCanvas.height);
+
+            // Test emojis with different presentation styles
+            const testEmojisForStyle = ['❤', '☀', '✅', '⭐', '☎'];
+
+            testEmojisForStyle.forEach((emoji, index) => {
+                const x = 100 + index * 100;
+                const y = 30;
+
+                // Text style
+                const textStyleEmoji = applyEmojiStyle(emoji, EMOJI_STYLE.TEXT);
+                styleRenderer.renderEmoji(textStyleEmoji, x, y, 30);
+
+                // Label
+                styleCtx.fillStyle = 'black';
+                styleCtx.font = '12px Arial';
+                styleCtx.textAlign = 'center';
+                styleCtx.fillText('Text Style', x, y + 30);
+
+                // Emoji style
+                const emojiStyleEmoji = applyEmojiStyle(emoji, EMOJI_STYLE.EMOJI);
+                styleRenderer.renderEmoji(emojiStyleEmoji, x, y + 60, 30);
+
+                // Label
+                styleCtx.fillText('Emoji Style', x, y + 90);
+            });
+
+            // Animation system test
+            const animationCanvas = document.getElementById('animation-canvas');
+            const animationCtx = animationCanvas.getContext('2d');
+            const animationRenderer = createEmojiRenderer(animationCtx);
+            const animator = createEmojiAnimator(animationRenderer);
+
+            // Clear canvas with white background
+            animationCtx.fillStyle = 'white';
+            animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+
+            // Transition canvas
+            const transitionCanvas = document.getElementById('transition-canvas');
+            const transitionCtx = transitionCanvas.getContext('2d');
+            const transitionRenderer = createEmojiRenderer(transitionCtx);
+            const transitionAnimator = createEmojiAnimator(transitionRenderer);
+
+            // Clear transition canvas
+            transitionCtx.fillStyle = 'white';
+            transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
+
+            // Track active animations
+            let activeAnimationId = null;
+            let activeTransitionId = null;
+
+            // Animation button handlers
+            document
+                .getElementById('cycle-animation-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing animation
+                    if (activeAnimationId) {
+                        animator.stopAnimation(activeAnimationId);
+                    }
+
+                    // Clear canvas
+                    animationCtx.fillStyle = 'white';
+                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+
+                    // Create a cycle animation with different emojis
+                    const emojis = [
+                        '😀',
+                        '😁',
+                        '😂',
+                        '🤣',
+                        '😃',
+                        '😄',
+                        '😅',
+                        '😆'
+                    ];
+                    const cycleAnimation = animator.createEmojiCycleAnimation(emojis, 300, {
+                        loop: true,
+                        name: 'emoji_cycle'
+                    });
+
+                    // Play the animation
+                    activeAnimationId = animator.playAnimation(null, cycleAnimation, animationCanvas.width / 2, animationCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('bounce-animation-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing animation
+                    if (activeAnimationId) {
+                        animator.stopAnimation(activeAnimationId);
+                    }
+
+                    // Clear canvas
+                    animationCtx.fillStyle = 'white';
+                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+
+                    // Create a bounce animation
+                    const bounceAnimation = animator.createBounceAnimation('🏀', 1000, 20, 1.5);
+
+                    // Play the animation
+                    activeAnimationId = animator.playAnimation(null, bounceAnimation, animationCanvas.width / 2, animationCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('shake-animation-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing animation
+                    if (activeAnimationId) {
+                        animator.stopAnimation(activeAnimationId);
+                    }
+
+                    // Clear canvas
+                    animationCtx.fillStyle = 'white';
+                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+
+                    // Create a shake animation
+                    const shakeAnimation = animator.createShakeAnimation('😱', 800, 15, 0.3);
+
+                    // Play the animation
+                    activeAnimationId = animator.playAnimation(null, shakeAnimation, animationCanvas.width / 2, animationCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('typing-animation-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing animation
+                    if (activeAnimationId) {
+                        animator.stopAnimation(activeAnimationId);
+                    }
+
+                    // Clear canvas
+                    animationCtx.fillStyle = 'white';
+                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+
+                    // Create a typing animation
+                    const typingAnimation = animator.createTypingAnimation('💬', 1000, 10);
+
+                    // Play the animation
+                    activeAnimationId = animator.playAnimation(null, typingAnimation, animationCanvas.width / 2, animationCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('stop-animation-btn')
+                .addEventListener('click', () => {
+                    // Stop all animations
+                    animator.stopAllAnimations();
+                    activeAnimationId = null;
+
+                    // Clear canvas
+                    animationCtx.fillStyle = 'white';
+                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+                });
+
+            // Transition button handlers
+            document
+                .getElementById('fade-transition-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing transition
+                    if (activeTransitionId) {
+                        transitionAnimator.stopAnimation(activeTransitionId);
+                    }
+
+                    // Clear canvas
+                    transitionCtx.fillStyle = 'white';
+                    transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
+
+                    // Create a fade transition
+                    const fadeTransition = createEmojiTransition('🌞', '🌙', 1500, 'fade', 15);
+
+                    // Play the transition
+                    activeTransitionId = transitionAnimator.playAnimation(null, fadeTransition, transitionCanvas.width / 2, transitionCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('scale-transition-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing transition
+                    if (activeTransitionId) {
+                        transitionAnimator.stopAnimation(activeTransitionId);
+                    }
+
+                    // Clear canvas
+                    transitionCtx.fillStyle = 'white';
+                    transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
+
+                    // Create a scale transition
+                    const scaleTransition = createEmojiTransition('🐣', '🐥', 1500, 'scale', 15);
+
+                    // Play the transition
+                    activeTransitionId = transitionAnimator.playAnimation(null, scaleTransition, transitionCanvas.width / 2, transitionCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('rotate-transition-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing transition
+                    if (activeTransitionId) {
+                        transitionAnimator.stopAnimation(activeTransitionId);
+                    }
+
+                    // Clear canvas
+                    transitionCtx.fillStyle = 'white';
+                    transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
+
+                    // Create a rotate transition
+                    const rotateTransition = createEmojiTransition('🍃', '🍂', 1500, 'rotate', 15);
+
+                    // Play the transition
+                    activeTransitionId = transitionAnimator.playAnimation(null, rotateTransition, transitionCanvas.width / 2, transitionCanvas.height / 2, 60);
+                });
+
+            document
+                .getElementById('pulse-transition-btn')
+                .addEventListener('click', () => {
+                    // Stop any existing transition
+                    if (activeTransitionId) {
+                        transitionAnimator.stopAnimation(activeTransitionId);
+                    }
+
+                    // Clear canvas
+                    transitionCtx.fillStyle = 'white';
+                    transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
+
+                    // Create a pulse transition
+                    const pulseTransition = createEmojiTransition('❤️', '💓', 1500, 'pulse', 15);
+
+                    // Play the transition
+                    activeTransitionId = transitionAnimator.playAnimation(null, pulseTransition, transitionCanvas.width / 2, transitionCanvas.height / 2, 60);
+                });
+
+            // Add some CSS for the animation controls
+            const style = document.createElement('style');
+            style.textContent = `
+                .animation-controls {
+                    margin: 15px 0;
+                }
+                .control-buttons {
+                    display: flex;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                    margin-bottom: 15px;
+                }
+                .control-buttons button {
+                    padding: 8px 12px;
+                    background-color: #f0f0f0;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    cursor: pointer;
+                }
+                .control-buttons button:hover {
+                    background-color: #e0e0e0;
+                }
+                .picker-container {
+                    margin: 20px 0;
+                    padding: 15px;
+                    border: 1px solid #eee;
+                    border-radius: 5px;
+                    background-color: #f9f9f9;
+                }
+                .picker-result {
+                    margin: 15px 0;
+                    font-size: 18px;
+                }
+                .picker-controls {
+                    margin: 15px 0;
+                }
+                #emoji-picker-container {
+                    margin: 15px 0;
+                }
+                #emoji-button-container {
+                    margin: 15px 0;
+                }
+            `;
+            document
+                .head
+                .appendChild(style);
+
+            // Emoji Picker Demo
+            const pickerContainer = document.getElementById('emoji-picker-container');
+            const pickerResult = document.getElementById('picker-result');
+            const showPickerBtn = document.getElementById('show-picker-btn');
+            const hidePickerBtn = document.getElementById('hide-picker-btn');
+
+            // Create the emoji picker
+            const emojiPicker = createEmojiPicker({
+                container: pickerContainer,
+                onEmojiSelect: (emoji) => {
+                    pickerResult.textContent = emoji;
+                },
+                showSkinTones: true,
+                showSearch: true,
+                showRecents: true,
+                showFavorites: true
+            });
+
+            // Add button handlers
+            showPickerBtn.addEventListener('click', () => {
+                emojiPicker.show();
+            });
+
+            hidePickerBtn.addEventListener('click', () => {
+                emojiPicker.hide();
+            });
+
+            // Initially hide the picker
+            emojiPicker.hide();
+
+            // Emoji Button Demo
+            const buttonContainer = document.getElementById('emoji-button-container');
+            const buttonResult = document.getElementById('button-result');
+
+            // Create the emoji button
+            const emojiButton = createEmojiButton({
+                container: buttonContainer,
+                onEmojiSelect: (emoji) => {
+                    buttonResult.textContent = emoji;
+                },
+                buttonText: '😀 Select Emoji',
+                pickerOptions: {
+                    showSkinTones: true,
+                    showSearch: true,
+                    showRecents: true,
+                    showFavorites: true
+                }
+            });
+
+            // Add CSS for the composition system
+            const compositionStyle = document.createElement('style');
+            compositionStyle.textContent = `
+                .composition-container {
+                    display: flex;
+                    gap: 20px;
+                    margin-bottom: 20px;
+                }
+
+                .composition-preview {
+                    flex: 1;
+                    padding: 15px;
+                    background-color: #f9f9f9;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                }
+
+                .composition-controls {
+                    flex: 1;
+                    padding: 15px;
+                    background-color: #f9f9f9;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                }
+
+                .layer-controls {
+                    margin-top: 15px;
+                }
+
+                .layer-property {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 10px;
+                }
+
+                .layer-property label {
+                    width: 80px;
+                    font-weight: bold;
+                }
+
+                .layer-property input[type="range"] {
+                    flex: 1;
+                    margin: 0 10px;
+                }
+
+                .layer-property span {
+                    width: 50px;
+                    text-align: right;
+                }
+
+                .preset-compositions {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 15px;
+                    margin-top: 15px;
+                }
+
+                .preset-composition {
+                    width: 100px;
+                    height: 100px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: #f9f9f9;
+                }
+
+                .preset-composition:hover {
+                    background-color: #f0f0f0;
+                    border-color: #ccc;
+                }
+
+                .preset-composition-canvas {
+                    margin-bottom: 5px;
+                }
+
+                .preset-composition-name {
+                    font-size: 12px;
+                    text-align: center;
+                }
+            `;
+            document
+                .head
+                .appendChild(compositionStyle);
+
+            // Emoji Composition System Test
+            const compositionPreviewContainer = document.getElementById('composition-preview-container');
+
+            // Create canvas for composition preview
+            const compositionCanvas = document.createElement('canvas');
+            compositionCanvas.width = 300;
+            compositionCanvas.height = 300;
+            compositionCanvas.style.border = '1px solid #ccc';
+            compositionCanvas.style.backgroundColor = '#f0f0f0';
+            compositionPreviewContainer.appendChild(compositionCanvas);
+
+            const compositionCtx = compositionCanvas.getContext('2d');
+            const compositionRenderer = createEmojiRenderer(compositionCtx);
+            const composer = createEmojiComposer(compositionRenderer);
+
+            // Create a default composition
+            const defaultCompositionId = 'default_composition';
+            const defaultLayer = createCompositionLayer('😀');
+            composer.createComposition(defaultCompositionId, [defaultLayer], {name: 'Default Composition'});
+
+            // Get layer control elements
+            const layerEmojiInput = document.getElementById('layer-emoji');
+            const layerXInput = document.getElementById('layer-x');
+            const layerYInput = document.getElementById('layer-y');
+            const layerScaleInput = document.getElementById('layer-scale');
+            const layerRotationInput = document.getElementById('layer-rotation');
+            const layerOpacityInput = document.getElementById('layer-opacity');
+
+            const layerXValue = document.getElementById('layer-x-value');
+            const layerYValue = document.getElementById('layer-y-value');
+            const layerScaleValue = document.getElementById('layer-scale-value');
+            const layerRotationValue = document.getElementById('layer-rotation-value');
+            const layerOpacityValue = document.getElementById('layer-opacity-value');
+
+            // Current layer index
+            let currentLayerIndex = 0;
+
+            // Render the composition
+            function renderComposition() {
+                // Clear canvas
+                compositionCtx.fillStyle = 'white';
+                compositionCtx.fillRect(0, 0, compositionCanvas.width, compositionCanvas.height);
+
+                // Render the composition
+                const composition = composer.getComposition(defaultCompositionId);
+                if (composition) {
+                    composer.renderComposition(composition, compositionCanvas.width / 2, compositionCanvas.height / 2, 1.0);
+                }
+            }
+
+            // Update layer controls to reflect the current layer
+            function updateLayerControls() {
+                const composition = composer.getComposition(defaultCompositionId);
+                if (!composition || composition.layers.length === 0) {
+                    return;
+                }
+
+                // Ensure current layer index is valid
+                currentLayerIndex = Math.min(currentLayerIndex, composition.layers.length - 1);
+
+                const layer = composition.layers[currentLayerIndex];
+
+                // Update input values
+                layerEmojiInput.value = layer.emoji;
+                layerXInput.value = layer.x;
+                layerYInput.value = layer.y;
+                layerScaleInput.value = layer.scale;
+                layerRotationInput.value = layer.rotation;
+                layerOpacityInput.value = layer.opacity;
+
+                // Update display values
+                layerXValue.textContent = layer.x;
+                layerYValue.textContent = layer.y;
+                layerScaleValue.textContent = layer
+                    .scale
+                    .toFixed(1);
+                layerRotationValue.textContent = `${Math.round(layer.rotation * 180 / Math.PI)}°`;
+                layerOpacityValue.textContent = `${Math.round(layer.opacity * 100)}%`;
+            }
+
+            // Add event listeners to layer controls
+            layerEmojiInput.addEventListener('input', () => {
+                const emoji = layerEmojiInput.value;
+                composer.updateLayer(defaultCompositionId, currentLayerIndex, {emoji});
+                renderComposition();
+            });
+
+            layerXInput.addEventListener('input', () => {
+                const x = parseInt(layerXInput.value, 10);
+                layerXValue.textContent = x;
+                composer.updateLayer(defaultCompositionId, currentLayerIndex, {x});
+                renderComposition();
+            });
+
+            layerYInput.addEventListener('input', () => {
+                const y = parseInt(layerYInput.value, 10);
+                layerYValue.textContent = y;
+                composer.updateLayer(defaultCompositionId, currentLayerIndex, {y});
+                renderComposition();
+            });
+
+            layerScaleInput.addEventListener('input', () => {
+                const scale = parseFloat(layerScaleInput.value);
+                layerScaleValue.textContent = scale.toFixed(1);
+                composer.updateLayer(defaultCompositionId, currentLayerIndex, {scale});
+                renderComposition();
+            });
+
+            layerRotationInput.addEventListener('input', () => {
+                const rotation = parseFloat(layerRotationInput.value);
+                layerRotationValue.textContent = `${Math.round(rotation * 180 / Math.PI)}°`;
+                composer.updateLayer(defaultCompositionId, currentLayerIndex, {rotation});
+                renderComposition();
+            });
+
+            layerOpacityInput.addEventListener('input', () => {
+                const opacity = parseFloat(layerOpacityInput.value);
+                layerOpacityValue.textContent = `${Math.round(opacity * 100)}%`;
+                composer.updateLayer(defaultCompositionId, currentLayerIndex, {opacity});
+                renderComposition();
+            });
+
+            // Add button handlers
+            document
+                .getElementById('add-layer-btn')
+                .addEventListener('click', () => {
+                    const newLayer = createCompositionLayer('😀');
+                    composer.addLayer(defaultCompositionId, newLayer);
+                    currentLayerIndex = composer
+                        .getComposition(defaultCompositionId)
+                        .layers
+                        .length - 1;
+                    updateLayerControls();
+                    renderComposition();
+                });
+
+            document
+                .getElementById('clear-composition-btn')
+                .addEventListener('click', () => {
+                    composer.updateComposition(defaultCompositionId, {layers: []});
+                    composer.addLayer(defaultCompositionId, createCompositionLayer('😀'));
+                    currentLayerIndex = 0;
+                    updateLayerControls();
+                    renderComposition();
+                });
+
+            document
+                .getElementById('export-composition-btn')
+                .addEventListener('click', () => {
+                    const composition = composer.getComposition(defaultCompositionId);
+                    if (composition) {
+                        const dataURL = composer.toDataURL(defaultCompositionId, 256);
+                        const link = document.createElement('a');
+                        link.href = dataURL;
+                        link.download = 'emoji-composition.png';
+                        document
+                            .body
+                            .appendChild(link);
+                        link.click();
+                        document
+                            .body
+                            .removeChild(link);
+                    }
+                });
+
+            // Add emoji picker for the layer emoji
+            document
+                .getElementById('pick-emoji-btn')
+                .addEventListener('click', () => {
+                    // Create a temporary container for the picker
+                    const pickerContainer = document.createElement('div');
+                    pickerContainer.style.position = 'absolute';
+                    pickerContainer.style.zIndex = '1000';
+
+                    // Position near the emoji input
+                    const rect = layerEmojiInput.getBoundingClientRect();
+                    pickerContainer.style.top = `${rect.bottom + 5}px`;
+                    pickerContainer.style.left = `${rect.left}px`;
+
+                    document
+                        .body
+                        .appendChild(pickerContainer);
+
+                    // Create the picker
+                    const picker = createEmojiPicker({
+                        container: pickerContainer,
+                        onEmojiSelect: (emoji) => {
+                            layerEmojiInput.value = emoji;
+                            composer.updateLayer(defaultCompositionId, currentLayerIndex, {emoji});
+                            renderComposition();
+
+                            // Remove the picker
+                            document
+                                .body
+                                .removeChild(pickerContainer);
+                        }
+                    });
+
+                    // Show the picker
+                    picker.show();
+
+                    // Add click outside handler to close picker
+                    const handleClickOutside = (e) => {
+                        if (!pickerContainer.contains(e.target) && e.target !== layerEmojiInput && e.target !== document.getElementById('pick-emoji-btn')) {
+                            document
+                                .body
+                                .removeChild(pickerContainer);
+                            document.removeEventListener('click', handleClickOutside);
+                        }
+                    };
+
+                    // Delay adding the event listener to prevent immediate closing
+                    setTimeout(() => {
+                        document.addEventListener('click', handleClickOutside);
+                    }, 100);
+                });
+
+            // Create preset compositions
+            const presetCompositions = [
+                {
+                    name: 'Smiley Face',
+                    layers: [createCompositionLayer('😀')]
+                }, {
+                    name: 'Sunglasses',
+                    layers: [createCompositionLayer('😎')]
+                }, {
+                    name: 'Face with Hat',
+                    layers: [
+                        createCompositionLayer('😀'),
+                        createCompositionLayer('🎩', {
+                            y: -20,
+                            scale: 0.8
+                        })
+                    ]
+                }, {
+                    name: 'Clown',
+                    layers: [
+                        createCompositionLayer('😀'),
+                        createCompositionLayer('🤡', {
+                            scale: 1.2,
+                            opacity: 0.7
+                        })
+                    ]
+                }, {
+                    name: 'Thinking',
+                    layers: [
+                        createCompositionLayer('🤔'),
+                        createCompositionLayer('💭', {
+                            x: 20,
+                            y: -20,
+                            scale: 0.7
+                        })
+                    ]
+                }, {
+                    name: 'Love',
+                    layers: [
+                        createCompositionLayer('😍'),
+                        createCompositionLayer('❤️', {
+                            x: 20,
+                            y: -20,
+                            scale: 0.7
+                        }),
+                        createCompositionLayer('❤️', {
+                            x: -20,
+                            y: -20,
+                            scale: 0.7
+                        })
+                    ]
+                }
+            ];
+
+            // Add preset compositions to the UI
+            const presetContainer = document.getElementById('preset-compositions');
+
+            presetCompositions.forEach((preset, index) => {
+                const presetElement = document.createElement('div');
+                presetElement.className = 'preset-composition';
+
+                // Create a small canvas for the preview
+                const presetCanvas = document.createElement('canvas');
+                presetCanvas.width = 80;
+                presetCanvas.height = 80;
+                presetCanvas.className = 'preset-composition-canvas';
+                presetElement.appendChild(presetCanvas);
+
+                // Add name
+                const nameElement = document.createElement('div');
+                nameElement.className = 'preset-composition-name';
+                nameElement.textContent = preset.name;
+                presetElement.appendChild(nameElement);
+
+                // Render the preset
+                const presetCtx = presetCanvas.getContext('2d');
+                const presetRenderer = createEmojiRenderer(presetCtx);
+                const presetComposer = createEmojiComposer(presetRenderer);
+
+                // Create the composition
+                const presetId = `preset_${index}`;
+                presetComposer.createComposition(presetId, preset.layers, {name: preset.name});
+
+                // Render it
+                presetCtx.fillStyle = 'white';
+                presetCtx.fillRect(0, 0, presetCanvas.width, presetCanvas.height);
+                presetComposer.renderComposition(presetComposer.getComposition(presetId), presetCanvas.width / 2, presetCanvas.height / 2, 0.8);
+
+                // Add click handler to load this preset
+                presetElement.addEventListener('click', () => {
+                    // Update the main composition with these layers
+                    composer.updateComposition(defaultCompositionId, {
+                        layers: [...preset.layers],
+                        name: preset.name
+                    });
+
+                    // Update UI
+                    currentLayerIndex = 0;
+                    updateLayerControls();
+                    renderComposition();
+                });
+
+                presetContainer.appendChild(presetElement);
+            });
+
+            // Initial render
+            updateLayerControls();
+            renderComposition();
+
+            // Grid Map System Test
+            const gridMapCanvas = document.getElementById('grid-map-canvas');
+            const gridMapCtx = gridMapCanvas.getContext('2d');
+            const gridMapRenderer = createEmojiRenderer(gridMapCtx);
+            const gridMapSystemRenderer = createGridRenderer(gridMapRenderer);
+
+            // Create a grid map
+            const mapWidth = 10;
+            const mapHeight = 10;
+            const mapCellSize = 40;
+            let gridMap = createGridMap(mapWidth, mapHeight, mapCellSize, {
+                name: 'Test Map',
+                defaultBackgroundEmoji: '⬜',
+                showGrid: true
+            });
+
+            // Set up some initial content
+            const backgroundLayer = gridMap.getLayer(GRID_LAYER_TYPE.BACKGROUND);
+            const collisionLayer = gridMap.getLayer(GRID_LAYER_TYPE.COLLISION);
+            const spriteLayer = gridMap.getLayer(GRID_LAYER_TYPE.SPRITE);
+
+            // Add a border of trees
+            for (let x = 0; x < mapWidth; x++) {
+                backgroundLayer.setCell(x, 0, '🟩');
+                backgroundLayer.setCell(x, mapHeight - 1, '🟩');
+
+                if (x > 0 && x < mapWidth - 1) {
+                    spriteLayer.setCell(x, 0, '🌳');
+                    spriteLayer.setCell(x, mapHeight - 1, '🌳');
+                }
+            }
+
+            for (let y = 0; y < mapHeight; y++) {
+                backgroundLayer.setCell(0, y, '🟩');
+                backgroundLayer.setCell(mapWidth - 1, y, '🟩');
+
+                if (y > 0 && y < mapHeight - 1) {
+                    spriteLayer.setCell(0, y, '🌳');
+                    spriteLayer.setCell(mapWidth - 1, y, '🌳');
+                }
+            }
+
+            // Add a house
+            backgroundLayer.setCell(3, 3, '🟫');
+            spriteLayer.setCell(3, 3, '🏠');
+            collisionLayer.setCell(3, 3, '🚫');
+
+            // Add a path
+            for (let x = 3; x < 8; x++) {
+                backgroundLayer.setCell(x, 5, '🟫');
+            }
+
+            // Add a character
+            spriteLayer.setCell(5, 5, '🧙');
+
+            // Add a water area
+            for (let x = 6; x < 9; x++) {
+                for (let y = 2; y < 4; y++) {
+                    backgroundLayer.setCell(x, y, '🟦');
+                    if (x === 7 && y === 3) {
+                        spriteLayer.setCell(x, y, '🐟');
+                    }
+                }
+            }
+
+            // Track current state
+            let activeLayerType = GRID_LAYER_TYPE.BACKGROUND;
+            let brushEmoji = '🌳';
+            let highlightedCell = {
+                x: -1,
+                y: -1
+            };
+            let isMouseDown = false;
+            let lastCell = {
+                x: -1,
+                y: -1
+            };
+
+            // Get UI elements
+            const activeLayerSelect = document.getElementById('active-layer-select');
+            const brushEmojiInput = document.getElementById('brush-emoji');
+            const mouseGridPosEl = document.getElementById('mouse-grid-pos');
+            const cameraPosEl = document.getElementById('camera-pos');
+
+            // Add CSS for the grid system
+            const gridStyle = document.createElement('style');
+            gridStyle.textContent = `
+                .grid-controls {
+                    margin: 15px 0;
+                    padding: 15px;
+                    background-color: #f9f9f9;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                }
+
+                .layer-selector, .brush-selector, .camera-controls {
+                    margin: 15px 0;
+                }
+
+                .grid-info {
+                    margin: 15px 0;
+                    padding: 10px;
+                    background-color: #f5f5f5;
+                    border-radius: 5px;
+                }
+            `;
+            document
+                .head
+                .appendChild(gridStyle);
+
+            // Render the grid map
+            function renderGridMap() {
+                // Clear canvas
+                gridMapCtx.fillStyle = 'white';
+                gridMapCtx.fillRect(0, 0, gridMapCanvas.width, gridMapCanvas.height);
+
+                // Render the grid map
+                gridMapSystemRenderer.renderGridMap(gridMap, 0, 0, 30);
+
+                // Render highlighted cell if valid
+                if (highlightedCell.x >= 0 && highlightedCell.x < mapWidth && highlightedCell.y >= 0 && highlightedCell.y < mapHeight) {
+                    gridMapSystemRenderer.renderHighlightedCell(gridMap, highlightedCell.x, highlightedCell.y, 30);
+                }
+            }
+
+            // Initial render
+            renderGridMap();
+
+            // Update camera position display
+            function updateCameraDisplay() {
+                const camera = gridMap.getCamera();
+                cameraPosEl.textContent = `${camera.x}, ${camera.y}`;
+            }
+
+            // Add event listeners for grid map canvas
+            gridMapCanvas.addEventListener('mousemove', (e) => {
+                const rect = gridMapCanvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                // Convert to grid coordinates
+                const gridCoords = gridMap.screenToGrid(mouseX, mouseY);
+                highlightedCell = {
+                    x: gridCoords.x,
+                    y: gridCoords.y
+                };
+
+                // Update display
+                mouseGridPosEl.textContent = `${gridCoords.x}, ${gridCoords.y}`;
+
+                // Handle drawing if mouse is down
+                if (isMouseDown && (lastCell.x !== gridCoords.x || lastCell.y !== gridCoords.y) && gridCoords.x >= 0 && gridCoords.x < mapWidth && gridCoords.y >= 0 && gridCoords.y < mapHeight) {
+
+                    // Set the cell in the active layer
+                    gridMap
+                        .getLayer(activeLayerType)
+                        .setCell(gridCoords.x, gridCoords.y, brushEmoji);
+                    lastCell = {
+                        x: gridCoords.x,
+                        y: gridCoords.y
+                    };
+
+                    // Re-render
+                    renderGridMap();
+                }
+            });
+
+            gridMapCanvas.addEventListener('mousedown', (e) => {
+                isMouseDown = true;
+
+                // Get the cell at the mouse position
+                const rect = gridMapCanvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                // Convert to grid coordinates
+                const gridCoords = gridMap.screenToGrid(mouseX, mouseY);
+                lastCell = {
+                    x: gridCoords.x,
+                    y: gridCoords.y
+                };
+
+                // Set the cell in the active layer if within bounds
+                if (gridCoords.x >= 0 && gridCoords.x < mapWidth && gridCoords.y >= 0 && gridCoords.y < mapHeight) {
+                    gridMap
+                        .getLayer(activeLayerType)
+                        .setCell(gridCoords.x, gridCoords.y, brushEmoji);
+
+                    // Re-render
+                    renderGridMap();
+                }
+            });
+
+            gridMapCanvas.addEventListener('mouseup', () => {
+                isMouseDown = false;
+            });
+
+            gridMapCanvas.addEventListener('mouseleave', () => {
+                isMouseDown = false;
+                highlightedCell = {
+                    x: -1,
+                    y: -1
+                };
+                renderGridMap();
+            });
+
+            // Add event listeners for controls
+            activeLayerSelect.addEventListener('change', () => {
+                activeLayerType = activeLayerSelect.value;
+            });
+
+            brushEmojiInput.addEventListener('input', () => {
+                brushEmoji = brushEmojiInput.value;
+            });
+
+            // Add emoji picker for the brush emoji
+            document
+                .getElementById('pick-brush-emoji-btn')
+                .addEventListener('click', () => {
+                    // Create a temporary container for the picker
+                    const pickerContainer = document.createElement('div');
+                    pickerContainer.style.position = 'absolute';
+                    pickerContainer.style.zIndex = '1000';
+
+                    // Position near the emoji input
+                    const rect = brushEmojiInput.getBoundingClientRect();
+                    pickerContainer.style.top = `${rect.bottom + 5}px`;
+                    pickerContainer.style.left = `${rect.left}px`;
+
+                    document
+                        .body
+                        .appendChild(pickerContainer);
+
+                    // Create the picker
+                    const picker = createEmojiPicker({
+                        container: pickerContainer,
+                        onEmojiSelect: (emoji) => {
+                            brushEmojiInput.value = emoji;
+                            brushEmoji = emoji;
+
+                            // Remove the picker
+                            document
+                                .body
+                                .removeChild(pickerContainer);
+                        }
+                    });
+
+                    // Show the picker
+                    picker.show();
+
+                    // Add click outside handler to close picker
+                    const handleClickOutside = (e) => {
+                        if (!pickerContainer.contains(e.target) && e.target !== brushEmojiInput && e.target !== document.getElementById('pick-brush-emoji-btn')) {
+                            document
+                                .body
+                                .removeChild(pickerContainer);
+                            document.removeEventListener('click', handleClickOutside);
+                        }
+                    };
+
+                    // Delay adding the event listener to prevent immediate closing
+                    setTimeout(() => {
+                        document.addEventListener('click', handleClickOutside);
+                    }, 100);
+                });
+
+            // Button handlers
+            document
+                .getElementById('create-map-btn')
+                .addEventListener('click', () => {
+                    // Create a new map
+                    gridMap = createGridMap(mapWidth, mapHeight, mapCellSize, {
+                        name: 'New Map',
+                        defaultBackgroundEmoji: '⬜',
+                        showGrid: true
+                    });
+
+                    // Reset camera
+                    gridMap.setCamera(0, 0);
+                    updateCameraDisplay();
+
+                    // Re-render
+                    renderGridMap();
+                });
+
+            document
+                .getElementById('toggle-grid-btn')
+                .addEventListener('click', () => {
+                    // Toggle grid lines
+                    const showGrid = !gridMap.getProperty('showGrid');
+                    gridMap.setProperty('showGrid', showGrid);
+
+                    // Re-render
+                    renderGridMap();
+                });
+
+            document
+                .getElementById('toggle-layers-btn')
+                .addEventListener('click', () => {
+                    // Toggle visibility of non-background layers
+                    const layers = [GRID_LAYER_TYPE.COLLISION, GRID_LAYER_TYPE.EVENT, GRID_LAYER_TYPE.SPRITE, GRID_LAYER_TYPE.GUI];
+
+                    // Get the first layer's visibility to determine what to do
+                    const firstLayerVisible = gridMap
+                        .getLayer(layers[0])
+                        .getProperty('visible');
+
+                    // Toggle all layers to the opposite
+                    layers.forEach(layerType => {
+                        gridMap
+                            .getLayer(layerType)
+                            .setProperty('visible', !firstLayerVisible);
+                    });
+
+                    // Re-render
+                    renderGridMap();
+                });
+
+            document
+                .getElementById('clear-map-btn')
+                .addEventListener('click', () => {
+                    // Clear all layers
+                    Object
+                        .values(GRID_LAYER_TYPE)
+                        .forEach(layerType => {
+                            gridMap
+                                .getLayer(layerType)
+                                .clear();
+                        });
+
+                    // Set default background
+                    const backgroundLayer = gridMap.getLayer(GRID_LAYER_TYPE.BACKGROUND);
+                    for (let y = 0; y < mapHeight; y++) {
+                        for (let x = 0; x < mapWidth; x++) {
+                            backgroundLayer.setCell(x, y, '⬜');
+                        }
+                    }
+
+                    // Re-render
+                    renderGridMap();
+                });
+
+            // Camera control handlers
+            document
+                .getElementById('camera-up-btn')
+                .addEventListener('click', () => {
+                    gridMap.moveCamera(0, -50);
+                    updateCameraDisplay();
+                    renderGridMap();
+                });
+
+            document
+                .getElementById('camera-down-btn')
+                .addEventListener('click', () => {
+                    gridMap.moveCamera(0, 50);
+                    updateCameraDisplay();
+                    renderGridMap();
+                });
+
+            document
+                .getElementById('camera-left-btn')
+                .addEventListener('click', () => {
+                    gridMap.moveCamera(-50, 0);
+                    updateCameraDisplay();
+                    renderGridMap();
+                });
+
+            document
+                .getElementById('camera-right-btn')
+                .addEventListener('click', () => {
+                    gridMap.moveCamera(50, 0);
+                    updateCameraDisplay();
+                    renderGridMap();
+                });
+
+            document
+                .getElementById('camera-reset-btn')
+                .addEventListener('click', () => {
+                    gridMap.setCamera(0, 0);
+                    updateCameraDisplay();
+                    renderGridMap();
+                });
+
+            // Initial camera display
+            updateCameraDisplay();
+        </script>
+    </body>
+</html>

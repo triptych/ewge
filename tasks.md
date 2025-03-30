@@ -17,24 +17,24 @@ This document outlines the implementation tasks for each feature of the emoji-ba
   - [x] Create transition effects between emoji states
   - [x] Build animation preview tool
 
-- [ ] **1.3 Emoji Picker/Selector**
-  - [ ] Create categorized emoji database
-  - [ ] Design UI for emoji selection
-  - [ ] Implement search functionality
-  - [ ] Add recently used/favorites section
+- [x] **1.3 Emoji Picker/Selector**
+  - [x] Create categorized emoji database
+  - [x] Design UI for emoji selection
+  - [x] Implement search functionality
+  - [x] Add recently used/favorites section
 
-- [ ] **1.4 Emoji Composition System**
-  - [ ] Implement layering system for combining emojis
-  - [ ] Create tools for emoji customization
-  - [ ] Build preview system for composed emojis
-  - [ ] Add export/import for custom emoji compositions
+- [x] **1.4 Emoji Composition System**
+  - [x] Implement layering system for combining emojis
+  - [x] Create tools for emoji customization
+  - [x] Build preview system for composed emojis
+  - [x] Add export/import for custom emoji compositions
 
 ### 2. 2D Grid-Based Map System
-- [ ] **2.1 Grid Implementation**
-  - [ ] Create data structure for grid-based maps
-  - [ ] Implement configurable grid dimensions
-  - [ ] Build rendering system for grid display
-  - [ ] Add grid snapping and alignment tools
+- [x] **2.1 Grid Implementation**
+  - [x] Create data structure for grid-based maps
+  - [x] Implement configurable grid dimensions
+  - [x] Build rendering system for grid display
+  - [x] Add grid snapping and alignment tools
 
 - [ ] **2.2 Layer System**
   - [ ] Implement background layer

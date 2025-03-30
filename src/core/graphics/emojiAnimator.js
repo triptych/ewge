@@ -260,6 +260,11 @@ export const createEmojiAnimator = (emojiRenderer) => {
   const animationLoop = () => {
     const currentTime = Date.now();
 
+    // Clear the canvas once at the beginning of each animation frame
+    // This prevents the "blurring" effect caused by previous frames remaining visible
+    const ctx = emojiRenderer.getContext();
+    emojiRenderer.clearCanvas();
+
     // Process each active animation
     for (const [id, state] of activeAnimations.entries()) {
       if (!state.isPlaying) {

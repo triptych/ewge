@@ -3,692 +3,488 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Emoji Rendering System Test</title>
+        <title>Emoji-Based Web Game Engine IDE</title>
         <style>
+            :root {
+                --primary-color: #4a6fa5;
+                --secondary-color: #6c757d;
+                --background-color: #f8f9fa;
+                --panel-bg-color: #ffffff;
+                --border-color: #dee2e6;
+                --header-height: 60px;
+                --sidebar-width: 250px;
+                --footer-height: 30px;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
             body {
-                font-family: Arial, sans-serif;
-                max-width: 1000px;
-                margin: 0 auto;
-                padding: 20px;
-            }
-
-            h1,
-            h2,
-            h3 {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: var(--background-color);
                 color: #333;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
             }
 
-            .test-section {
-                margin-bottom: 30px;
-                padding: 15px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
+            header {
+                height: var(--header-height);
+                background-color: var(--primary-color);
+                color: white;
+                display: flex;
+                align-items: center;
+                padding: 0 20px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                z-index: 100;
             }
 
-            .canvas-container {
-                margin: 15px 0;
+            .logo {
+                font-size: 1.5rem;
+                font-weight: bold;
+                margin-right: 20px;
             }
 
-            canvas {
-                border: 1px solid #ccc;
-                background-color: #f9f9f9;
-            }
-
-            .controls {
-                margin: 15px 0;
-            }
-
-            .emoji-grid {
-                display: grid;
-                grid-template-columns: repeat(10, 1fr);
-                gap: 10px;
-                margin: 15px 0;
-            }
-
-            .emoji-item {
-                font-size: 24px;
-                text-align: center;
-                cursor: pointer;
-                padding: 5px;
-                border-radius: 5px;
-            }
-
-            .emoji-item:hover {
-                background-color: #f0f0f0;
-            }
-
-            .skin-tone-selector {
+            .toolbar {
                 display: flex;
                 gap: 10px;
-                margin: 15px 0;
+                margin-left: auto;
             }
 
-            .skin-tone-option {
-                font-size: 24px;
+            .toolbar button {
+                background-color: rgba(255, 255, 255, 0.2);
+                border: none;
+                color: white;
+                padding: 8px 12px;
+                border-radius: 4px;
                 cursor: pointer;
-                padding: 5px;
-                border-radius: 5px;
+                transition: background-color 0.2s;
             }
 
-            .skin-tone-option:hover {
-                background-color: #f0f0f0;
+            .toolbar button:hover {
+                background-color: rgba(255, 255, 255, 0.3);
             }
 
-            .selected {
-                background-color: #e0e0e0;
+            main {
+                flex: 1;
+                display: flex;
+                overflow: hidden;
             }
 
-            .browser-info {
-                margin-bottom: 15px;
+            .sidebar {
+                width: var(--sidebar-width);
+                background-color: var(--panel-bg-color);
+                border-right: 1px solid var(--border-color);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .sidebar-header {
+                padding: 15px;
+                font-weight: bold;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .sidebar-content {
+                flex: 1;
+                overflow-y: auto;
                 padding: 10px;
-                background-color: #f5f5f5;
-                border-radius: 5px;
             }
 
-            .status {
-                padding: 5px 10px;
-                border-radius: 3px;
-                display: inline-block;
-                margin-left: 10px;
+            .sidebar-item {
+                padding: 8px 10px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-bottom: 5px;
+                display: flex;
+                align-items: center;
             }
 
-            .status.success {
-                background-color: #d4edda;
-                color: #155724;
+            .sidebar-item:hover {
+                background-color: rgba(0, 0, 0, 0.05);
             }
 
-            .status.warning {
-                background-color: #fff3cd;
-                color: #856404;
+            .sidebar-item.active {
+                background-color: rgba(74, 111, 165, 0.1);
+                color: var(--primary-color);
             }
 
-            .status.error {
-                background-color: #f8d7da;
-                color: #721c24;
+            .sidebar-item-icon {
+                margin-right: 10px;
+                font-size: 1.2rem;
+            }
+
+            .content-area {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .tabs {
+                display: flex;
+                background-color: var(--panel-bg-color);
+                border-bottom: 1px solid var(--border-color);
+                overflow-x: auto;
+                scrollbar-width: thin;
+            }
+
+            .tab {
+                padding: 10px 20px;
+                border-right: 1px solid var(--border-color);
+                cursor: pointer;
+                white-space: nowrap;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .tab.active {
+                background-color: var(--background-color);
+                border-bottom: 2px solid var(--primary-color);
+            }
+
+            .tab-close {
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+            }
+
+            .tab-close:hover {
+                background-color: rgba(0, 0, 0, 0.1);
+            }
+
+            .workspace {
+                flex: 1;
+                display: flex;
+                overflow: hidden;
+            }
+
+            .editor-area {
+                flex: 1;
+                background-color: var(--panel-bg-color);
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .editor-placeholder {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--secondary-color);
+                font-size: 1.2rem;
+            }
+
+            .properties-panel {
+                width: 300px;
+                background-color: var(--panel-bg-color);
+                border-left: 1px solid var(--border-color);
+                overflow-y: auto;
+                padding: 15px;
+            }
+
+            .panel-section {
+                margin-bottom: 20px;
+            }
+
+            .panel-title {
+                font-weight: bold;
+                margin-bottom: 10px;
+                padding-bottom: 5px;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .property-row {
+                display: flex;
+                margin-bottom: 8px;
+            }
+
+            .property-label {
+                width: 40%;
+                font-size: 0.9rem;
+                color: var(--secondary-color);
+            }
+
+            .property-value {
+                width: 60%;
+            }
+
+            .property-value input,
+            .property-value select {
+                width: 100%;
+                padding: 4px 8px;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+            }
+
+            .status-bar {
+                height: var(--footer-height);
+                background-color: var(--panel-bg-color);
+                border-top: 1px solid var(--border-color);
+                display: flex;
+                align-items: center;
+                padding: 0 15px;
+                font-size: 0.8rem;
+                color: var(--secondary-color);
+            }
+
+            .status-item {
+                margin-right: 15px;
+            }
+
+            .emoji-picker-container {
+                position: absolute;
+                z-index: 1000;
+                display: none;
+            }
+
+            /* Responsive adjustments */
+            @media (max-width: 768px) {
+                .sidebar {
+                    width: 50px;
+                }
+
+                .sidebar-item-text {
+                    display: none;
+                }
+
+                .sidebar-item-icon {
+                    margin-right: 0;
+                    font-size: 1.5rem;
+                }
+
+                .properties-panel {
+                    display: none;
+                }
             }
         </style>
     </head>
     <body>
-        <h1>Emoji Rendering System Test</h1>
-
-        <div class="browser-info">
-            <h3>Browser Compatibility Check</h3>
-            <div id="browser-details"></div>
-            <div id="emoji-support-status"></div>
-        </div>
-
-        <div class="test-section">
-            <h2>Basic Emoji Rendering</h2>
-            <p>Testing basic emoji rendering on canvas:</p>
-            <div class="canvas-container">
-                <canvas id="basic-canvas" width="500" height="200"></canvas>
+        <header>
+            <div class="logo">🎮 Emoji-based Web Game Engine</div>
+            <div class="toolbar">
+                <button id="new-project-btn">New Project</button>
+                <button id="open-project-btn">Open</button>
+                <button id="save-project-btn">Save</button>
+                <button id="run-btn">▶ Run</button>
+                <button id="test-page-btn">Test Page</button>
             </div>
-        </div>
+        </header>
 
-        <div class="test-section">
-            <h2>Emoji Grid System</h2>
-            <p>Testing emoji grid rendering:</p>
-            <div class="canvas-container">
-                <canvas id="grid-canvas" width="500" height="300"></canvas>
-            </div>
-        </div>
-
-        <div class="test-section">
-            <h2>Skin Tone Variants</h2>
-            <p>Select an emoji and apply different skin tones:</p>
-            <div class="emoji-grid" id="emoji-selector">
-                <!-- Emojis that support skin tones will be populated here -->
-            </div>
-
-            <div>
-                <h3>Selected Emoji:
-                    <span id="selected-emoji">👋</span></h3>
-                <div class="skin-tone-selector" id="skin-tone-selector">
-                    <!-- Skin tone options will be populated here -->
+        <main>
+            <div class="sidebar">
+                <div class="sidebar-header">Project Explorer</div>
+                <div class="sidebar-content">
+                    <div class="sidebar-item active">
+                        <span class="sidebar-item-icon">📄</span>
+                        <span class="sidebar-item-text">Game Settings</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-item-icon">🗺️</span>
+                        <span class="sidebar-item-text">Maps</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-item-icon">😀</span>
+                        <span class="sidebar-item-text">Emoji Assets</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-item-icon">👤</span>
+                        <span class="sidebar-item-text">Characters</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-item-icon">⚔️</span>
+                        <span class="sidebar-item-text">Battle System</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-item-icon">🎒</span>
+                        <span class="sidebar-item-text">Inventory</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-item-icon">📜</span>
+                        <span class="sidebar-item-text">Events</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-item-icon">🧩</span>
+                        <span class="sidebar-item-text">Add-Ons</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="canvas-container">
-                <canvas id="skin-tone-canvas" width="500" height="100"></canvas>
-            </div>
-        </div>
+            <div class="content-area">
+                <div class="tabs">
+                    <div class="tab active">
+                        <span>Game Settings</span>
+                        <span class="tab-close">×</span>
+                    </div>
+                    <div class="tab">
+                        <span>Main Map</span>
+                        <span class="tab-close">×</span>
+                    </div>
+                </div>
 
-        <div class="test-section">
-            <h2>Emoji Presentation Styles</h2>
-            <p>Testing text vs. emoji presentation styles:</p>
-            <div class="canvas-container">
-                <canvas id="style-canvas" width="500" height="100"></canvas>
-            </div>
-        </div>
+                <div class="workspace">
+                    <div class="editor-area">
+                        <div class="editor-placeholder">
+                            <div>Select or create a project to get started</div>
+                        </div>
+                    </div>
 
-        <div class="test-section">
-            <h2>Emoji Animation System</h2>
-            <p>Testing emoji animations and transitions:</p>
+                    <div class="properties-panel">
+                        <div class="panel-section">
+                            <div class="panel-title">Properties</div>
+                            <div class="property-row">
+                                <div class="property-label">Name</div>
+                                <div class="property-value">
+                                    <input type="text" value="My Emoji Game">
+                                </div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Screen Size</div>
+                                <div class="property-value">
+                                    <select>
+                                        <option>640x480</option>
+                                        <option selected="selected">800x600</option>
+                                        <option>1024x768</option>
+                                        <option>Custom</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Grid Size</div>
+                                <div class="property-value">
+                                    <input type="text" value="32">
+                                </div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Default Emoji</div>
+                                <div class="property-value">
+                                    <input type="text" value="😀" id="emoji-selector">
+                                </div>
+                            </div>
+                        </div>
 
-            <div class="animation-controls">
-                <h3>Animation Types</h3>
-                <div class="control-buttons">
-                    <button id="cycle-animation-btn">Cycle Animation</button>
-                    <button id="bounce-animation-btn">Bounce Animation</button>
-                    <button id="shake-animation-btn">Shake Animation</button>
-                    <button id="typing-animation-btn">Typing Animation</button>
-                    <button id="stop-animation-btn">Stop All</button>
+                        <div class="panel-section">
+                            <div class="panel-title">Game Options</div>
+                            <div class="property-row">
+                                <div class="property-label">Starting Map</div>
+                                <div class="property-value">
+                                    <select>
+                                        <option>Title Screen</option>
+                                        <option selected="selected">Main Map</option>
+                                        <option>Village</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="property-row">
+                                <div class="property-label">Battle System</div>
+                                <div class="property-value">
+                                    <select>
+                                        <option>None</option>
+                                        <option selected="selected">Turn-Based</option>
+                                        <option>Active Time</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </main>
 
-            <div class="canvas-container">
-                <canvas id="animation-canvas" width="500" height="200"></canvas>
-            </div>
-
-            <div class="animation-controls">
-                <h3>Transition Effects</h3>
-                <div class="control-buttons">
-                    <button id="fade-transition-btn">Fade Transition</button>
-                    <button id="scale-transition-btn">Scale Transition</button>
-                    <button id="rotate-transition-btn">Rotate Transition</button>
-                    <button id="pulse-transition-btn">Pulse Transition</button>
-                </div>
-            </div>
-
-            <div class="canvas-container">
-                <canvas id="transition-canvas" width="500" height="100"></canvas>
-            </div>
+        <div class="status-bar">
+            <div class="status-item">Ready</div>
+            <div class="status-item">Grid: 32x32</div>
+            <div class="status-item">Zoom: 100%</div>
         </div>
+
+        <div id="emoji-picker-container" class="emoji-picker-container"></div>
 
         <script type="module">
-            import {createCanvas, createEmojiRenderer} from './src/core/graphics/emojiRenderer.js';
-            import {
-                SKIN_TONES,
-                EMOJI_STYLE,
-                applyEmojiSkinTone,
-                applyEmojiStyle,
-                getAllSkinToneVariations,
-                supportsSkinTone,
-                detectEmojiSupport,
-                EMOJI_CATEGORIES
-            } from './src/core/graphics/emojiUtils.js';
-            import {createEmojiAnimator, createAnimation, createAnimationFrame, createEmojiTransition} from './src/core/graphics/emojiAnimator.js';
+            import {createEmojiButton} from './src/core/graphics/emojiPicker.js';
 
-            // Browser compatibility check
-            const browserDetailsEl = document.getElementById('browser-details');
-            const emojiSupportStatusEl = document.getElementById('emoji-support-status');
+            // Initialize the emoji picker button
+            document.addEventListener('DOMContentLoaded', () => {
+                const emojiPickerContainer = document.getElementById('emoji-picker-container');
+                const emojiSelector = document.getElementById('emoji-selector');
 
-            // Display browser information
-            const browserInfo = {
-                name: navigator.userAgent,
-                platform: navigator.platform,
-                language: navigator.language
-            };
-
-            browserDetailsEl.innerHTML = `
-      <p><strong>User Agent:</strong> ${browserInfo.name}</p>
-      <p><strong>Platform:</strong> ${browserInfo.platform}</p>
-      <p><strong>Language:</strong> ${browserInfo.language}</p>
-    `;
-
-            // Check emoji support
-            const emojiSupported = detectEmojiSupport();
-            emojiSupportStatusEl.innerHTML = emojiSupported
-                ? '<p><strong>Emoji Support:</strong> <span class="status success">Supported</span></p>'
-                : '<p><strong>Emoji Support:</strong> <span class="status error">Limited Support</span></p>';
-
-            // Basic emoji rendering test
-            const basicCanvas = document.getElementById('basic-canvas');
-            const basicCtx = basicCanvas.getContext('2d');
-            const basicRenderer = createEmojiRenderer(basicCtx);
-
-            // Clear canvas with white background
-            basicCtx.fillStyle = 'white';
-            basicCtx.fillRect(0, 0, basicCanvas.width, basicCanvas.height);
-
-            // Render various emojis at different sizes
-            const basicEmojis = [
-                '😀',
-                '🚀',
-                '🌈',
-                '🎮',
-                '🍕',
-                '🐱',
-                '🏆',
-                '🌍'
-            ];
-            basicEmojis.forEach((emoji, index) => {
-                const x = 60 + (index % 4) * 120;
-                const y = 60 + Math.floor(index / 4) * 80;
-                const size = 30 + (index % 3) * 10;
-                basicRenderer.renderEmoji(emoji, x, y, size);
-            });
-
-            // Grid rendering test
-            const gridCanvas = document.getElementById('grid-canvas');
-            const gridCtx = gridCanvas.getContext('2d');
-            const gridRenderer = createEmojiRenderer(gridCtx);
-
-            // Clear canvas with white background
-            gridCtx.fillStyle = 'white';
-            gridCtx.fillRect(0, 0, gridCanvas.width, gridCanvas.height);
-
-            // Create a sample emoji grid (5x5)
-            const emojiGrid = [
-                [
-                    '🌳', '🌳', '🌳', '🌳', '🌳'
-                ],
-                [
-                    '🌳', '🏠', '🛣️', '🏪', '🌳'
-                ],
-                [
-                    '🌳', '🛣️', '🛣️', '🛣️', '🌳'
-                ],
-                [
-                    '🌳', '🚗', '🛣️', '🚶', '🌳'
-                ],
-                [
-                    '🌳', '🌳', '🌳', '🌳', '🌳'
-                ]
-            ];
-
-            // Draw grid lines
-            gridCtx.strokeStyle = '#ddd';
-            const cellSize = 60;
-            const gridStartX = 50;
-            const gridStartY = 30;
-
-            for (let i = 0; i <= emojiGrid.length; i++) {
-                // Horizontal lines
-                gridCtx.beginPath();
-                gridCtx.moveTo(gridStartX, gridStartY + i * cellSize);
-                gridCtx.lineTo(gridStartX + emojiGrid[0].length * cellSize, gridStartY + i * cellSize);
-                gridCtx.stroke();
-
-                // Vertical lines
-                gridCtx.beginPath();
-                gridCtx.moveTo(gridStartX + i * cellSize, gridStartY);
-                gridCtx.lineTo(gridStartX + i * cellSize, gridStartY + emojiGrid.length * cellSize);
-                gridCtx.stroke();
-            }
-
-            // Render the emoji grid
-            gridRenderer.renderEmojiGrid(emojiGrid, gridStartX, gridStartY, cellSize, 40);
-
-            // Skin tone test
-            const skinToneCanvas = document.getElementById('skin-tone-canvas');
-            const skinToneCtx = skinToneCanvas.getContext('2d');
-            const skinToneRenderer = createEmojiRenderer(skinToneCtx);
-
-            // Populate emoji selector with emojis that support skin tones
-            const emojiSelectorEl = document.getElementById('emoji-selector');
-            const skinToneSupportingEmojis = [
-                '👋',
-                '👍',
-                '👎',
-                '✊',
-                '👊',
-                '👏',
-                '🙌',
-                '👆',
-                '👇',
-                '🙏',
-                '💪',
-                '🤳',
-                '💅',
-                '👨',
-                '👩'
-            ];
-
-            skinToneSupportingEmojis.forEach(emoji => {
-                const emojiEl = document.createElement('div');
-                emojiEl.className = 'emoji-item';
-                emojiEl.textContent = emoji;
-                emojiEl.addEventListener('click', () => {
-                    document
-                        .querySelectorAll('.emoji-item')
-                        .forEach(el => el.classList.remove('selected'));
-                    emojiEl
-                        .classList
-                        .add('selected');
-                    document
-                        .getElementById('selected-emoji')
-                        .textContent = emoji;
-                    updateSkinToneCanvas();
-                });
-                emojiSelectorEl.appendChild(emojiEl);
-            });
-
-            // Populate skin tone selector
-            const skinToneSelectorEl = document.getElementById('skin-tone-selector');
-            const skinToneOptions = [
-                {
-                    label: 'Default',
-                    value: null
-                }, {
-                    label: '👋🏻',
-                    value: SKIN_TONES.LIGHT
-                }, {
-                    label: '👋🏼',
-                    value: SKIN_TONES.MEDIUM_LIGHT
-                }, {
-                    label: '👋🏽',
-                    value: SKIN_TONES.MEDIUM
-                }, {
-                    label: '👋🏾',
-                    value: SKIN_TONES.MEDIUM_DARK
-                }, {
-                    label: '👋🏿',
-                    value: SKIN_TONES.DARK
-                }
-            ];
-
-            let selectedSkinTone = null;
-
-            skinToneOptions.forEach(option => {
-                const optionEl = document.createElement('div');
-                optionEl.className = 'skin-tone-option';
-                optionEl.textContent = option.label;
-                optionEl.addEventListener('click', () => {
-                    document
-                        .querySelectorAll('.skin-tone-option')
-                        .forEach(el => el.classList.remove('selected'));
-                    optionEl
-                        .classList
-                        .add('selected');
-                    selectedSkinTone = option.value;
-                    updateSkinToneCanvas();
-                });
-                skinToneSelectorEl.appendChild(optionEl);
-            });
-
-            // Select first emoji and default skin tone by default
-            document
-                .querySelector('.emoji-item')
-                .classList
-                .add('selected');
-            document
-                .querySelector('.skin-tone-option')
-                .classList
-                .add('selected');
-
-            function updateSkinToneCanvas() {
-                // Clear canvas
-                skinToneCtx.fillStyle = 'white';
-                skinToneCtx.fillRect(0, 0, skinToneCanvas.width, skinToneCanvas.height);
-
-                const selectedEmoji = document
-                    .getElementById('selected-emoji')
-                    .textContent;
-                const modifiedEmoji = selectedSkinTone
-                    ? applyEmojiSkinTone(selectedEmoji, selectedSkinTone)
-                    : selectedEmoji;
-
-                // Render the emoji with selected skin tone
-                skinToneRenderer.renderEmoji(modifiedEmoji, skinToneCanvas.width / 2, skinToneCanvas.height / 2, 60);
-            }
-
-            // Initial render
-            updateSkinToneCanvas();
-
-            // Emoji presentation style test
-            const styleCanvas = document.getElementById('style-canvas');
-            const styleCtx = styleCanvas.getContext('2d');
-            const styleRenderer = createEmojiRenderer(styleCtx);
-
-            // Clear canvas
-            styleCtx.fillStyle = 'white';
-            styleCtx.fillRect(0, 0, styleCanvas.width, styleCanvas.height);
-
-            // Test emojis with different presentation styles
-            const testEmojisForStyle = ['❤', '☀', '✅', '⭐', '☎'];
-
-            testEmojisForStyle.forEach((emoji, index) => {
-                const x = 100 + index * 100;
-                const y = 30;
-
-                // Text style
-                const textStyleEmoji = applyEmojiStyle(emoji, EMOJI_STYLE.TEXT);
-                styleRenderer.renderEmoji(textStyleEmoji, x, y, 30);
-
-                // Label
-                styleCtx.fillStyle = 'black';
-                styleCtx.font = '12px Arial';
-                styleCtx.textAlign = 'center';
-                styleCtx.fillText('Text Style', x, y + 30);
-
-                // Emoji style
-                const emojiStyleEmoji = applyEmojiStyle(emoji, EMOJI_STYLE.EMOJI);
-                styleRenderer.renderEmoji(emojiStyleEmoji, x, y + 60, 30);
-
-                // Label
-                styleCtx.fillText('Emoji Style', x, y + 90);
-            });
-
-            // Animation system test
-            const animationCanvas = document.getElementById('animation-canvas');
-            const animationCtx = animationCanvas.getContext('2d');
-            const animationRenderer = createEmojiRenderer(animationCtx);
-            const animator = createEmojiAnimator(animationRenderer);
-
-            // Clear canvas with white background
-            animationCtx.fillStyle = 'white';
-            animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
-
-            // Transition canvas
-            const transitionCanvas = document.getElementById('transition-canvas');
-            const transitionCtx = transitionCanvas.getContext('2d');
-            const transitionRenderer = createEmojiRenderer(transitionCtx);
-            const transitionAnimator = createEmojiAnimator(transitionRenderer);
-
-            // Clear transition canvas
-            transitionCtx.fillStyle = 'white';
-            transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
-
-            // Track active animations
-            let activeAnimationId = null;
-            let activeTransitionId = null;
-
-            // Animation button handlers
-            document
-                .getElementById('cycle-animation-btn')
-                .addEventListener('click', () => {
-                    // Stop any existing animation
-                    if (activeAnimationId) {
-                        animator.stopAnimation(activeAnimationId);
+                // Create the emoji button
+                createEmojiButton({
+                    container: emojiPickerContainer,
+                    onEmojiSelect: (emoji) => {
+                        emojiSelector.value = emoji;
+                    },
+                    buttonText: '😀 Select Emoji',
+                    pickerOptions: {
+                        showSkinTones: true,
+                        showSearch: true,
+                        showRecents: true,
+                        showFavorites: true
                     }
+                });
 
-                    // Clear canvas
-                    animationCtx.fillStyle = 'white';
-                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
+                // Show the picker when clicking on the emoji input
+                emojiSelector.addEventListener('click', (e) => {
+                    e.preventDefault();
 
-                    // Create a cycle animation with different emojis
-                    const emojis = [
-                        '😀',
-                        '😁',
-                        '😂',
-                        '🤣',
-                        '😃',
-                        '😄',
-                        '😅',
-                        '😆'
-                    ];
-                    const cycleAnimation = animator.createEmojiCycleAnimation(emojis, 300, {
-                        loop: true,
-                        name: 'emoji_cycle'
+                    // Position the picker
+                    const rect = emojiSelector.getBoundingClientRect();
+                    emojiPickerContainer.style.top = `${rect.bottom + 5}px`;
+                    emojiPickerContainer.style.left = `${rect.left}px`;
+                    emojiPickerContainer.style.display = 'block';
+
+                    // Show the picker
+                    const picker = emojiPickerContainer.querySelector('.emoji-picker');
+                    if (picker) {
+                        picker.style.display = 'block';
+                    }
+                });
+
+                // Handle test page button
+                document
+                    .getElementById('test-page-btn')
+                    .addEventListener('click', () => {
+                        window.open('tests.html', '_blank');
                     });
 
-                    // Play the animation
-                    activeAnimationId = animator.playAnimation(null, cycleAnimation, animationCanvas.width / 2, animationCanvas.height / 2, 60);
-                });
+                // Simple tab functionality
+                document
+                    .querySelectorAll('.tab')
+                    .forEach(tab => {
+                        tab.addEventListener('click', () => {
+                            document
+                                .querySelectorAll('.tab')
+                                .forEach(t => t.classList.remove('active'));
+                            tab
+                                .classList
+                                .add('active');
+                        });
+                    });
 
-            document
-                .getElementById('bounce-animation-btn')
-                .addEventListener('click', () => {
-                    // Stop any existing animation
-                    if (activeAnimationId) {
-                        animator.stopAnimation(activeAnimationId);
-                    }
-
-                    // Clear canvas
-                    animationCtx.fillStyle = 'white';
-                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
-
-                    // Create a bounce animation
-                    const bounceAnimation = animator.createBounceAnimation('🏀', 1000, 20, 1.5);
-
-                    // Play the animation
-                    activeAnimationId = animator.playAnimation(null, bounceAnimation, animationCanvas.width / 2, animationCanvas.height / 2, 60);
-                });
-
-            document
-                .getElementById('shake-animation-btn')
-                .addEventListener('click', () => {
-                    // Stop any existing animation
-                    if (activeAnimationId) {
-                        animator.stopAnimation(activeAnimationId);
-                    }
-
-                    // Clear canvas
-                    animationCtx.fillStyle = 'white';
-                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
-
-                    // Create a shake animation
-                    const shakeAnimation = animator.createShakeAnimation('😱', 800, 15, 0.3);
-
-                    // Play the animation
-                    activeAnimationId = animator.playAnimation(null, shakeAnimation, animationCanvas.width / 2, animationCanvas.height / 2, 60);
-                });
-
-            document
-                .getElementById('typing-animation-btn')
-                .addEventListener('click', () => {
-                    // Stop any existing animation
-                    if (activeAnimationId) {
-                        animator.stopAnimation(activeAnimationId);
-                    }
-
-                    // Clear canvas
-                    animationCtx.fillStyle = 'white';
-                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
-
-                    // Create a typing animation
-                    const typingAnimation = animator.createTypingAnimation('💬', 1000, 10);
-
-                    // Play the animation
-                    activeAnimationId = animator.playAnimation(null, typingAnimation, animationCanvas.width / 2, animationCanvas.height / 2, 60);
-                });
-
-            document
-                .getElementById('stop-animation-btn')
-                .addEventListener('click', () => {
-                    // Stop all animations
-                    animator.stopAllAnimations();
-                    activeAnimationId = null;
-
-                    // Clear canvas
-                    animationCtx.fillStyle = 'white';
-                    animationCtx.fillRect(0, 0, animationCanvas.width, animationCanvas.height);
-                });
-
-            // Transition button handlers
-            document
-                .getElementById('fade-transition-btn')
-                .addEventListener('click', () => {
-                    // Stop any existing transition
-                    if (activeTransitionId) {
-                        transitionAnimator.stopAnimation(activeTransitionId);
-                    }
-
-                    // Clear canvas
-                    transitionCtx.fillStyle = 'white';
-                    transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
-
-                    // Create a fade transition
-                    const fadeTransition = createEmojiTransition('🌞', '🌙', 1500, 'fade', 15);
-
-                    // Play the transition
-                    activeTransitionId = transitionAnimator.playAnimation(null, fadeTransition, transitionCanvas.width / 2, transitionCanvas.height / 2, 60);
-                });
-
-            document
-                .getElementById('scale-transition-btn')
-                .addEventListener('click', () => {
-                    // Stop any existing transition
-                    if (activeTransitionId) {
-                        transitionAnimator.stopAnimation(activeTransitionId);
-                    }
-
-                    // Clear canvas
-                    transitionCtx.fillStyle = 'white';
-                    transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
-
-                    // Create a scale transition
-                    const scaleTransition = createEmojiTransition('🐣', '🐥', 1500, 'scale', 15);
-
-                    // Play the transition
-                    activeTransitionId = transitionAnimator.playAnimation(null, scaleTransition, transitionCanvas.width / 2, transitionCanvas.height / 2, 60);
-                });
-
-            document
-                .getElementById('rotate-transition-btn')
-                .addEventListener('click', () => {
-                    // Stop any existing transition
-                    if (activeTransitionId) {
-                        transitionAnimator.stopAnimation(activeTransitionId);
-                    }
-
-                    // Clear canvas
-                    transitionCtx.fillStyle = 'white';
-                    transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
-
-                    // Create a rotate transition
-                    const rotateTransition = createEmojiTransition('🍃', '🍂', 1500, 'rotate', 15);
-
-                    // Play the transition
-                    activeTransitionId = transitionAnimator.playAnimation(null, rotateTransition, transitionCanvas.width / 2, transitionCanvas.height / 2, 60);
-                });
-
-            document
-                .getElementById('pulse-transition-btn')
-                .addEventListener('click', () => {
-                    // Stop any existing transition
-                    if (activeTransitionId) {
-                        transitionAnimator.stopAnimation(activeTransitionId);
-                    }
-
-                    // Clear canvas
-                    transitionCtx.fillStyle = 'white';
-                    transitionCtx.fillRect(0, 0, transitionCanvas.width, transitionCanvas.height);
-
-                    // Create a pulse transition
-                    const pulseTransition = createEmojiTransition('❤️', '💓', 1500, 'pulse', 15);
-
-                    // Play the transition
-                    activeTransitionId = transitionAnimator.playAnimation(null, pulseTransition, transitionCanvas.width / 2, transitionCanvas.height / 2, 60);
-                });
-
-            // Add some CSS for the animation controls
-            const style = document.createElement('style');
-            style.textContent = `
-                .animation-controls {
-                    margin: 15px 0;
-                }
-                .control-buttons {
-                    display: flex;
-                    gap: 10px;
-                    flex-wrap: wrap;
-                    margin-bottom: 15px;
-                }
-                .control-buttons button {
-                    padding: 8px 12px;
-                    background-color: #f0f0f0;
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
-                    cursor: pointer;
-                }
-                .control-buttons button:hover {
-                    background-color: #e0e0e0;
-                }
-            `;
-            document
-                .head
-                .appendChild(style);
+                // Simple sidebar functionality
+                document
+                    .querySelectorAll('.sidebar-item')
+                    .forEach(item => {
+                        item.addEventListener('click', () => {
+                            document
+                                .querySelectorAll('.sidebar-item')
+                                .forEach(i => i.classList.remove('active'));
+                            item
+                                .classList
+                                .add('active');
+                        });
+                    });
+            });
         </script>
     </body>
 </html>
